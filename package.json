@@ -1,0 +1,13 @@
+{
+  "name": "prompt-ai",
+  "version": "1.0.0",
+  "main": "index.html",
+  "scripts": {
+    "start": "node api/server.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.11.3",
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  }
+}
