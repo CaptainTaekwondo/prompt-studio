@@ -23,22 +23,45 @@ body {
     border-bottom-right-radius: 15px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
+.header h1 { margin: 0; font-size: 2.5em; }
+.header h1 i { margin-left: 10px; color: #ffeb3b; }
+.header p { margin: 5px 0 0; font-size: 1.1em; opacity: 0.9; }
 
-.header h1 {
-    margin: 0;
-    font-size: 2.5em;
+/* --- ✨ 2. تصميم زر الاختيار (صورة/فيديو) --- */
+.toggle-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 25px;
 }
-
-.header h1 i {
-    margin-left: 10px;
-    color: #ffeb3b; /* لون أيقونة سحرية */
-}
-
-.header p {
-    margin: 5px 0 0;
+.toggle-button {
+    flex: 1;
+    padding: 12px;
     font-size: 1.1em;
-    opacity: 0.9;
+    font-weight: bold;
+    border: 2px solid #764ba2;
+    background-color: #fff;
+    color: #764ba2;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
+.toggle-button i { margin-left: 8px; }
+.toggle-button:first-of-type {
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-left-width: 1px; /* (إصلاح للحدود المزدوجة) */
+}
+.toggle-button:last-of-type {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+.toggle-button.active {
+    background-color: #764ba2;
+    color: white;
+}
+.toggle-button:not(.active):hover {
+    background-color: #f0f2f5;
+}
+
 
 /* --- تصميم البطاقات (Cards) --- */
 .card {
@@ -46,7 +69,7 @@ body {
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     padding: 25px;
-    margin-top: 25px;
+    margin-top: 15px; /* (تقليل المسافة) */
 }
 
 .card h2 {
@@ -56,10 +79,7 @@ body {
     padding-bottom: 10px;
     font-size: 1.6em;
 }
-
-.card h2 i {
-    margin-left: 10px;
-}
+.card h2 i { margin-left: 10px; }
 
 /* --- تصميم عناصر التحكم (الفورم) --- */
 textarea, select {
@@ -72,11 +92,7 @@ textarea, select {
     box-sizing: border-box; /* لضمان عدم خروج الحواف */
     margin-top: 10px;
 }
-
-textarea {
-    min-height: 120px;
-    resize: vertical; /* السماح بتكبير مربع النص عمودياً */
-}
+textarea { min-height: 120px; resize: vertical; }
 
 /* --- تصميم شبكة القوائم المنسدلة --- */
 .controls-grid {
@@ -84,23 +100,16 @@ textarea {
     grid-template-columns: repeat(2, 1fr); /* عمودين */
     gap: 20px; /* مسافة بين العناصر */
 }
-
 .control-group label {
     font-weight: bold;
     font-size: 1.1em;
     color: #555;
 }
-
-.control-group label i {
-    margin-left: 8px;
-    color: #667eea; /* لون أزرق متناسق */
-}
+.control-group label i { margin-left: 8px; color: #667eea; }
 
 /* (للهواتف، اجعلها عمود واحد) */
 @media (max-width: 600px) {
-    .controls-grid {
-        grid-template-columns: 1fr;
-    }
+    .controls-grid { grid-template-columns: 1fr; }
 }
 
 /* --- تصميم زر التوليد --- */
@@ -121,16 +130,11 @@ textarea {
     justify-content: center;
     gap: 10px;
 }
-
 #generate-button:hover {
     box-shadow: 0 6px 15px rgba(255, 128, 8, 0.4);
     transform: translateY(-2px);
 }
-
-#generate-button:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-}
+#generate-button:disabled { background: #ccc; cursor: not-allowed; }
 
 /* --- تصميم مؤشر التحميل (Loader) --- */
 .loader {
@@ -141,7 +145,6 @@ textarea {
     height: 20px;
     animation: spin 1s linear infinite;
 }
-
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
@@ -152,17 +155,15 @@ textarea {
     background-color: #f9f9f9;
     border: 2px solid #667eea;
 }
-
-#result-card h2 {
-    color: #667eea;
-}
-
+#result-card h2 { color: #667eea; }
 #result-prompt {
-    min-height: 150px;
+    min-height: 250px; /* (زيادة الطول ليتسع لعدة برومبتات) */
     background-color: #eee;
     color: #333;
     font-weight: bold;
     border: none;
+    text-align: left; /* (لضمان ظهور البرومبت الإنجليزي من اليسار) */
+    direction: ltr;
 }
 
 #copy-button {
@@ -178,11 +179,5 @@ textarea {
     margin-top: 15px;
     transition: background-color 0.2s ease;
 }
-
-#copy-button:hover {
-    background-color: #218838;
-}
-
-#copy-button i {
-    margin-left: 8px;
-                           }
+#copy-button:hover { background-color: #218838; }
+#copy-button i { margin-left: 8px; }
