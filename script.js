@@ -8,6 +8,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const compositionSelect = document.getElementById("composition-select");
     const aspectRatioSelect = document.getElementById("aspect-ratio-select");
     
+    // (العناصر الجديدة)
+    const typeImageButton = document.getElementById("type-image");
+    const typeVideoButton = document.getElementById("type-video");
+    let currentType = "image"; // (النوع الافتراضي هو صورة)
+
     const generateButton = document.getElementById("generate-button");
     const loader = document.getElementById("loader");
 
@@ -16,35 +21,44 @@ document.addEventListener("DOMContentLoaded", () => {
     const copyButton = document.getElementById("copy-button");
 
     // --- 2. تحديد رابط الـ API ---
-    // (رابط نسبي، Vercel سيفهمه)
     const API_ENDPOINT = "/api/generate-prompt";
 
-    // --- 3. الحدث الرئيسي: الضغط على زر "ولّد" ---
+    // --- 3. أحداث أزرار (صورة/فيديو) ---
+    typeImageButton.addEventListener("click", () => {
+        currentType = "image";
+        typeImageButton.classList.add("active");
+        typeVideoButton.classList.remove("active");
+    });
+    typeVideoButton.addEventListener("click", () => {
+        currentType = "video";
+        typeVideoButton.classList.add("active");
+        typeImageButton.classList.remove("active");
+    });
+
+
+    // --- 4. الحدث الرئيسي: الضغط على زر "ولّد" ---
     generateButton.addEventListener("click", async () => {
         // قراءة القيم من الفورم
         const idea = ideaInput.value;
         const style = styleSelect.value;
         const lighting = lightingSelect.value;
         const composition = compositionSelect.value;
-        
-        // (ملاحظة: الأبعاد سنضيفها للبرومبت في الواجهة)
         const aspectRatio = aspectRatioSelect.value;
 
-        // التحقق من أن الفكرة ليست فارغة
         if (!idea.trim()) {
             alert("الرجاء كتابة الفكرة الأساسية أولاً!");
             ideaInput.focus();
             return;
         }
 
-        // إظهار التحميل وإخفاء الزر
+        // إظهار التحميل
         generateButton.disabled = true;
         loader.style.display = "block";
         generateButton.querySelector("i").style.display = "none";
-        resultCard.style.display = "none"; // إخفاء النتيجة القديمة
+        resultCard.style.display = "none"; 
 
         try {
-            // 4. إرسال الطلب إلى "العقل المدبر" (API)
+            // 5. إرسال الطلب إلى "العقل المدبر" (API)
             const response = await fetch(API_ENDPOINT, {
                 method: "POST",
                 headers: {
@@ -52,6 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 },
                 body: JSON.stringify({
                     idea: idea,
+                    type: currentType, // (إرسال النوع: صورة أم فيديو)
                     style: style,
                     lighting: lighting,
                     composition: composition
@@ -59,33 +74,35 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             if (!response.ok) {
-                throw new Error("فشل الاتصال بالـ API");
+                const errorData = await response.json();
+                throw new Error(errorData.error || "فشل الاتصال بالـ API");
             }
 
             const data = await response.json();
 
-            // 5. بناء البرومبت النهائي (إضافة الأبعاد)
-            const finalPrompt = `${data.professionalPrompt} --ar ${aspectRatio}`;
+            // 6. بناء البرومبت النهائي (إضافة الأبعاد)
+            // (الآن الرد من Gemini سيحتوي على كل البرومبتات)
+            const finalPrompt = `${data.professionalPrompt}\n\n(تم توليده باستخدام الأبعاد: ${aspectRatio})`;
 
-            // 6. عرض النتيجة
+            // 7. عرض النتيجة
             resultPrompt.value = finalPrompt;
             resultCard.style.display = "block";
 
         } catch (error) {
             console.error(error);
-            alert("حدث خطأ أثناء توليد البرومبت. الرجاء المحاولة مرة أخرى.");
+            alert("حدث خطأ أثناء توليد البرومبت: " + error.message);
         } finally {
-            // 7. إرجاع الزر لحالته الطبيعية
+            // 8. إرجاع الزر لحالته الطبيعية
             generateButton.disabled = false;
             loader.style.display = "none";
             generateButton.querySelector("i").style.display = "inline-block";
         }
     });
 
-    // --- 4. حدث "نسخ" البرومبت ---
+    // --- 5. حدث "نسخ" البرومبت ---
     copyButton.addEventListener("click", () => {
         resultPrompt.select();
-        document.execCommand("copy"); // (الطريقة التقليدية للنسخ، تعمل جيداً)
+        document.execCommand("copy"); 
         copyButton.innerText = "تم النسخ! 👍";
         
         setTimeout(() => {
