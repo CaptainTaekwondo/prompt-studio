@@ -34,11 +34,22 @@ body.rtl {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     position: relative; 
 }
-/* --- زر تغيير اللغة --- */
-.lang-toggle {
+
+/* --- ✨ 1. (الجديد) حاوية أزرار الهيدر --- */
+.header-buttons {
     position: absolute;
     top: 10px;
-    right: 10px; 
+    right: 10px;
+    display: flex;
+    gap: 10px;
+    z-index: 10;
+}
+body.rtl .header-buttons {
+    right: auto;
+    left: 10px; 
+}
+/* --- ✨ 2. (الجديد) تصميم الأزرار الموحد --- */
+.header-btn {
     background: rgba(255, 255, 255, 0.2);
     border: 1px solid white;
     color: white;
@@ -47,25 +58,31 @@ body.rtl {
     cursor: pointer;
     font-weight: bold;
     font-family: 'Cairo', sans-serif;
-    z-index: 10; 
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
-body.rtl .lang-toggle {
-    right: auto;
-    left: 10px; 
-}
-.lang-toggle i { margin-right: 5px; }
-body.rtl .lang-toggle i { margin-left: 5px; margin-right: 0; }
+.header-btn i { margin-right: 5px; }
+body.rtl .header-btn i { margin-left: 5px; margin-right: 0; }
 
 
 .header h1 {
     font-size: 2.5rem;
     margin-bottom: 10px;
     text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-    padding-top: 40px; /* (الفاصل) */
+    /* --- ✨ 3. (الجديد) زيادة الفاصل العلوي لترك مساحة للزرين --- */
+    padding-top: 50px; 
 }
 .header h1 i { margin-right: 10px; color: #ffeb3b; } 
 body.rtl .header h1 i { margin-left: 10px; margin-right: 0; }
-.header p { font-size: 1.2rem; opacity: 0.9; }
+
+.header .year { 
+    margin: 5px 0 0; 
+    font-size: 1.1em; 
+    opacity: 0.9;
+    font-weight: bold;
+    color: #ffeb3b; 
+}
 
 /* --- زر الاختيار (صورة/فيديو) --- */
 .toggle-container { display: flex; justify-content: center; margin-top: 25px; }
@@ -195,10 +212,8 @@ body.rtl .platform-card {
 .copy-btn:hover { background: #218838; transform: scale(1.05); }
 .visit-btn { background: #007bff; color: white; text-decoration: none; }
 .visit-btn:hover { background: #0056b3; transform: scale(1.05); }
-
-/* --- ✨ 2. تصميم زر المشاركة الجديد --- */
 .share-btn {
-    background: #1DA1F2; /* (لون أزرق مثل تويتر) */
+    background: #1DA1F2; 
     color: white;
 }
 .share-btn:hover {
@@ -221,4 +236,4 @@ body.rtl .platform-card {
     .header h1 { font-size: 2rem; }
     .platform-header { flex-direction: column; align-items: flex-start; gap: 10px; }
     .platform-actions { justify-content: flex-start; }
-    }
+}
