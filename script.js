@@ -1,15 +1,22 @@
-// script.js (الإصدار الاحترافي v3.0 - مع الترجمة والمشاركة)
+// script.js (الإصدار الاحترافي v3.0 - مع الترجمة والمشاركة والأبعاد)
 
-// --- ✨ 1. قاموس الترجمة (تمت إضافة "المشاركة") ---
+// --- ✨ 1. قاموس الترجمة (تمت إضافة "الأبعاد") ---
 const translations = {
     "en": {
+        // ... (الترجمات الأخرى)
+        "labelAspectRatio": "Aspect Ratio", // <-- (الجديد)
+        "optAr1x1": "1:1 (Square) - Instagram Post",
+        "optAr9x16": "9:16 (Portrait) - TikTok/Story",
+        "optAr16x9": "16:9 (Landscape) - YouTube",
+        "optAr4x5": "4:5 (Tall) - Instagram Portrait",
+        "optAr4x3": "4:3 (Standard) - Photo",
         "langBtn": "العربية",
         "headerTitle": "✨️ Prompt AI pro ✨️",
         "year": "2025",
         "headerSubtitle": "Turn your ideas into professional prompts for all AI platforms",
         "btnImage": "Image",
         "btnVideo": "Video",
-        "btnShareSite": "Share Site", // <-- ✨ (الجديد)
+        "btnShareSite": "Share Site", 
         "card1Title": "1. Describe Your Creative Idea",
         "placeholderIdea": "Example: A cat wearing a spacesuit, sitting on the moon...",
         "card2Title": "2. Content Settings",
@@ -44,13 +51,20 @@ const translations = {
         "cardResultTitleVideo": "🎬 Video Platforms"
     },
     "ar": {
+        // ... (الترجمات الأخرى)
+        "labelAspectRatio": "الأبعاد", // <-- (الجديد)
+        "optAr1x1": "1:1 (مربع) - انستجرام",
+        "optAr9x16": "9:16 (بورتريه) - تيك توك/ستوري",
+        "optAr16x9": "16:9 (عرضي) - يوتيوب",
+        "optAr4x5": "4:5 (طولي) - انستجرام بورتريه",
+        "optAr4x3": "4:3 (قياسي) - صورة",
         "langBtn": "English",
         "headerTitle": "✨️ Prompt AI pro ✨️",
         "year": "2025",
         "headerSubtitle": "حوّل أفكارك إلى برومبتات احترافية لجميع منصات الذكاء الاصطناعي",
         "btnImage": "إنشاء الصور",
         "btnVideo": "إنشاء الفيديوهات",
-        "btnShareSite": "مشاركة الموقع", // <-- ✨ (الجديد)
+        "btnShareSite": "مشاركة الموقع", 
         "card1Title": "1. اكتب فكرتك الإبداعية",
         "placeholderIdea": "مثال: قطة ترتدي بدلة فضاء وتسبح في المجرة...",
         "card2Title": "2. إعدادات المحتوى",
@@ -112,11 +126,12 @@ function setLanguage(lang) {
 
 document.addEventListener("DOMContentLoaded", () => {
     
-    // --- 3. تحديد العناصر (تمت إضافة الزر الجديد) ---
+    // --- 3. تحديد العناصر (تمت إضافة "الأبعاد") ---
     const ideaInput = document.getElementById("idea-input");
     const styleSelect = document.getElementById("style-select");
     const lightingSelect = document.getElementById("lighting-select");
     const compositionSelect = document.getElementById("composition-select");
+    const aspectRatioSelect = document.getElementById("aspect-ratio-select"); // <-- ✨ (الجديد)
     const platformSelect = document.getElementById("platform-select");
     const typeImageButton = document.getElementById("type-image");
     const typeVideoButton = document.getElementById("type-video");
@@ -125,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const loader = document.getElementById("loader");
     const resultContainer = document.getElementById("result-container"); 
     const langToggleButton = document.getElementById("lang-toggle");
-    const shareSiteButton = document.getElementById("share-site-button"); // <-- ✨ (الجديد)
+    const shareSiteButton = document.getElementById("share-site-button"); 
 
     const API_ENDPOINT = "/api/generate-prompt"; 
 
@@ -146,27 +161,19 @@ document.addEventListener("DOMContentLoaded", () => {
         const newLang = currentLang === 'en' ? 'ar' : 'en';
         setLanguage(newLang);
     });
-    
-    // --- ✨ 5. (الجديد) حدث زر مشاركة الموقع ---
     shareSiteButton.addEventListener("click", async () => {
         const shareData = {
-            title: translations['en']['headerTitle'], // (دائماً إنجليزي للمشاركة)
-            text: translations[currentLang]['headerSubtitle'], // (الوصف باللغة الحالية)
-            url: window.location.href // (رابط الموقع)
+            title: translations['en']['headerTitle'], 
+            text: translations[currentLang]['headerSubtitle'], 
+            url: window.location.href 
         };
         if (navigator.share) {
-            try {
-                await navigator.share(shareData);
-            } catch (err) {
-                console.error("Share error:", err);
-            }
+            try { await navigator.share(shareData); } catch (err) { console.error("Share error:", err); }
         } else {
-            // (الحل البديل: نسخ الرابط)
             navigator.clipboard.writeText(window.location.href);
             alert(translations[currentLang]['alertShareError']);
         }
     });
-
 
     function updatePlatformOptions() {
         const imageOptions = platformSelect.querySelectorAll('optgroup[label="🖼️ Image Platforms"], optgroup[label="🖼️ Image Platforms"] > option, optgroup[label="🖼️ منصات الصور"], optgroup[label="🖼️ منصات الصور"] > option');
@@ -186,12 +193,13 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // --- 6. حدث التوليد الرئيسي ---
+    // --- 5. حدث التوليد الرئيسي (تمت إضافة "الأبعاد") ---
     generateButton.addEventListener("click", async () => {
         const idea = ideaInput.value.trim();
         const style = styleSelect.value;
         const lighting = lightingSelect.value;
         const composition = compositionSelect.value;
+        const aspectRatio = aspectRatioSelect.value; // <-- ✨ (الجديد)
         const platform = platformSelect.value;
 
         if (!idea) {
@@ -210,7 +218,15 @@ document.addEventListener("DOMContentLoaded", () => {
             const response = await fetch(API_ENDPOINT, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ idea, type: currentType, style, lighting, composition, platform }),
+                body: JSON.stringify({ 
+                    idea, 
+                    type: currentType, 
+                    style, 
+                    lighting, 
+                    composition, 
+                    aspectRatio, // <-- ✨ (الجديد)
+                    platform 
+                }),
             });
 
             if (!response.ok) {
@@ -241,7 +257,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // --- 7. دالة بناء البطاقة التفاعلية (تمت إضافة زر المشاركة) ---
+    // (دوال بناء البطاقات والنسخ والمشاركة تبقى كما هي)
     window.createPlatformCard = (platformId, name, logo, url, promptText) => {
         return `
             <div class="platform-card" data-platform="${platformId}">
@@ -266,39 +282,28 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
         `;
     }
-
-    // --- 8. دالة النسخ (العامة) ---
     window.copyPrompt = (platformId) => {
         const promptText = document.getElementById(`prompt-${platformId}`).textContent;
         navigator.clipboard.writeText(promptText).then(() => {
             alert(translations[currentLang]['alertCopied']);
         });
     }
-
-    // --- 9. ✨ (الجديد) دالة المشاركة (العامة) ---
     window.sharePrompt = async (platformId) => {
         const promptText = document.getElementById(`prompt-${platformId}`).textContent;
-        
         const shareData = {
             title: `Prompt from ${translations['en']['headerTitle']}`, 
             text: promptText,
             url: window.location.href 
         };
-
         if (navigator.share) {
-            try {
-                await navigator.share(shareData);
-                console.log("Prompt shared successfully");
-            } catch (err) {
-                console.error("Share error:", err);
-            }
+            try { await navigator.share(shareData); } catch (err) { console.error("Share error:", err); }
         } else {
             copyPrompt(platformId);
             alert(translations[currentLang]['alertShareError']);
         }
     }
 
-    // --- 10. التهيئة الأولية ---
+    // --- 6. التهيئة الأولية ---
     updatePlatformOptions();
-    setLanguage(currentLang); // (تطبيق اللغة الإنجليزية الافتراضية)
+    setLanguage(currentLang); 
 });
