@@ -1,27 +1,140 @@
-// script.js (الإصدار الاحترافي v3.0 - Static Engine)
+// script.js (الإصدار الاحترافي v3.0 - مع الترجمة)
+
+// --- ✨ 1. قاموس الترجمة (عربي/إنجليزي) ---
+const translations = {
+    "en": {
+        "langBtn": "العربية",
+        "headerTitle": "Prompt AI Studio",
+        "headerSubtitle": "Turn your ideas into professional prompts for all AI platforms",
+        "btnImage": "Image",
+        "btnVideo": "Video",
+        "card1Title": "1. Describe Your Creative Idea",
+        "placeholderIdea": "Example: A cat wearing a spacesuit, sitting on the moon...",
+        "card2Title": "2. Content Settings",
+        "labelStyle": "Artistic Style",
+        "optDefault": "(Default: Realistic)",
+        "optRealistic": "Realistic",
+        "optCinematic": "Cinematic",
+        "optAnime": "Anime",
+        "optDigitalArt": "Digital Art",
+        "optFantasy": "Fantasy",
+        "labelLighting": "Lighting",
+        "optNatural": "Natural",
+        "optDramatic": "Dramatic",
+        "optSoft": "Soft",
+        "optNeon": "Neon",
+        "labelComposition": "Composition",
+        "optCloseup": "Close-up",
+        "optWideShot": "Wide Shot",
+        "optAerialView": "Aerial View",
+        "optDynamicAngle": "Dynamic Angle",
+        "labelPlatform": "Select Platform",
+        "optAllPlatforms": "All Platforms",
+        "btnGenerate": "Generate Professional Prompts",
+        "btnCopy": "Copy",
+        "btnVisit": "Visit Site",
+        "alertIdea": "Please enter your idea first!",
+        "alertError": "Error generating prompt: ",
+        "alertCopied": "✅ Prompt copied successfully!",
+        "cardResultTitle": "🖼️ Image Platforms",
+        "cardResultTitleVideo": "🎬 Video Platforms"
+    },
+    "ar": {
+        "langBtn": "English",
+        "headerTitle": "استوديو البرومبتات الذكي",
+        "headerSubtitle": "حوّل أفكارك إلى برومبتات احترافية لجميع منصات الذكاء الاصطناعي",
+        "btnImage": "إنشاء الصور",
+        "btnVideo": "إنشاء الفيديوهات",
+        "card1Title": "1. اكتب فكرتك الإبداعية",
+        "placeholderIdea": "مثال: قطة ترتدي بدلة فضاء وتسبح في المجرة...",
+        "card2Title": "2. إعدادات المحتوى",
+        "labelStyle": "النمط الفني",
+        "optDefault": "(افتراضي: واقعي)",
+        "optRealistic": "واقعي (Realistic)",
+        "optCinematic": "سينمائي (Cinematic)",
+        "optAnime": "أنمي (Anime)",
+        "optDigitalArt": "فن رقمي (Digital Art)",
+        "optFantasy": "خيالي (Fantasy)",
+        "labelLighting": "الإضاءة",
+        "optNatural": "طبيعية (Natural)",
+        "optDramatic": "درامية (Dramatic)",
+        "optSoft": "ناعمة (Soft)",
+        "optNeon": "نيون (Neon)",
+        "labelComposition": "التكوين",
+        "optCloseup": "لقطة قريبة (Close-up)",
+        "optWideShot": "لقطة واسعة (Wide Shot)",
+        "optAerialView": "منظر جوي (Aerial View)",
+        "optDynamicAngle": "زاوية ديناميكية (Dynamic Angle)",
+        "labelPlatform": "اختر المنصة",
+        "optAllPlatforms": "جميع المنصات",
+        "btnGenerate": "توليد البرومبتات الاحترافية",
+        "btnCopy": "نسخ",
+        "btnVisit": "زيارة الموقع",
+        "alertIdea": "الرجاء كتابة الفكرة الأساسية أولاً!",
+        "alertError": "حدث خطأ: ",
+        "alertCopied": "✅ تم نسخ البرومبت بنجاح!",
+        "cardResultTitle": "🖼️ منصات الصور",
+        "cardResultTitleVideo": "🎬 منصات الفيديو"
+    }
+};
+
+// --- 2. دالة تغيير اللغة ---
+let currentLang = "en"; // (الافتراضي هو الإنجليزية)
+
+function setLanguage(lang) {
+    currentLang = lang;
+    if (lang === 'ar') {
+        document.documentElement.lang = 'ar';
+        document.documentElement.dir = 'rtl';
+        document.body.classList.add('rtl');
+    } else {
+        document.documentElement.lang = 'en';
+        document.documentElement.dir = 'ltr';
+        document.body.classList.remove('rtl');
+    }
+
+    // تطبيق الترجمات على كل العناصر
+    document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        if (translations[lang][key]) {
+            element.textContent = translations[lang][key];
+        }
+    });
+
+    // تطبيق الترجمات على (Placeholders)
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+        const key = element.getAttribute('data-i18n-placeholder');
+        if (translations[lang][key]) {
+            element.placeholder = translations[lang][key];
+        }
+    });
+
+    // تحديث زر اللغة
+    document.getElementById('lang-toggle-text').textContent = translations[lang]['langBtn'];
+}
+
 
 document.addEventListener("DOMContentLoaded", () => {
     
-    // --- 1. تحديد العناصر (من الكود القديم) ---
+    // --- 3. تحديد العناصر ---
     const ideaInput = document.getElementById("idea-input");
     const styleSelect = document.getElementById("style-select");
     const lightingSelect = document.getElementById("lighting-select");
     const compositionSelect = document.getElementById("composition-select");
     const platformSelect = document.getElementById("platform-select");
     
-    // أزرار النوع
     const typeImageButton = document.getElementById("type-image");
     const typeVideoButton = document.getElementById("type-video");
-    let currentType = "image";
+    let currentType = "image"; 
 
-    // عناصر التحكم
     const generateButton = document.getElementById("generate-button");
     const loader = document.getElementById("loader");
-    const resultContainer = document.getElementById("result-container"); // (تحديث: الحاوية الجديدة)
+    const resultContainer = document.getElementById("result-container"); 
+    const langToggleButton = document.getElementById("lang-toggle");
 
-    const API_ENDPOINT = "/api/generate-prompt";
+    const API_ENDPOINT = "/api/generate-prompt"; 
 
-    // --- 2. أحداث أزرار النوع (من الكود القديم) ---
+    // --- 4. أحداث أزرار النوع ---
     typeImageButton.addEventListener("click", () => {
         currentType = "image";
         typeImageButton.classList.add("active");
@@ -35,28 +148,33 @@ document.addEventListener("DOMContentLoaded", () => {
         typeImageButton.classList.remove("active");
         updatePlatformOptions();
     });
+    
+    // --- 5. حدث زر تغيير اللغة ---
+    langToggleButton.addEventListener("click", () => {
+        const newLang = currentLang === 'en' ? 'ar' : 'en';
+        setLanguage(newLang);
+    });
 
-    // --- 3. تحديث خيارات المنصة (من الكود القديم) ---
+    // (باقي الكود كما هو)
     function updatePlatformOptions() {
-        const imageOptions = platformSelect.querySelectorAll('.image-options'); // (استخدام .image-options)
-        const videoOptions = platformSelect.querySelectorAll('.video-options'); // (استخدام .video-options)
+        const imageOptions = platformSelect.querySelectorAll('optgroup[label="🖼️ Image Platforms"], optgroup[label="🖼️ Image Platforms"] > option, optgroup[label="🖼️ منصات الصور"], optgroup[label="🖼️ منصات الصور"] > option');
+        const videoOptions = platformSelect.querySelectorAll('optgroup[label="🎬 Video Platforms"], optgroup[label="🎬 Video Platforms"] > option, optgroup[label="🎬 منصات الفيديو"], optgroup[label="🎬 منصات الفيديو"] > option');
         
         if (currentType === 'image') {
             imageOptions.forEach(opt => opt.style.display = 'block');
             videoOptions.forEach(opt => opt.style.display = 'none');
-            if (platformSelect.value.startsWith('runway')) {
+            if (platformSelect.value.startsWith('runway') || platformSelect.value.startsWith('pika')) {
                  platformSelect.value = 'all'; 
             }
         } else {
             imageOptions.forEach(opt => opt.style.display = 'none');
             videoOptions.forEach(opt => opt.style.display = 'block');
-            if (platformSelect.value.startsWith('midjourney')) {
+            if (platformSelect.value.startsWith('midjourney') || platformSelect.value.startsWith('dalle3')) {
                  platformSelect.value = 'all';
             }
         }
     }
 
-    // --- 4. حدث التوليد الرئيسي (دمج) ---
     generateButton.addEventListener("click", async () => {
         const idea = ideaInput.value.trim();
         const style = styleSelect.value;
@@ -65,17 +183,16 @@ document.addEventListener("DOMContentLoaded", () => {
         const platform = platformSelect.value;
 
         if (!idea) {
-            alert("Please enter your idea first!");
+            alert(translations[currentLang]['alertIdea']);
             ideaInput.focus();
             return;
         }
 
-        // إظهار التحميل
         generateButton.disabled = true;
         loader.style.display = "block";
         generateButton.querySelector("i").style.display = "none";
-        resultContainer.style.display = "none"; // (إخفاء النتائج القديمة)
-        resultContainer.innerHTML = ''; // (مسح النتائج القديمة)
+        resultContainer.style.display = "none"; 
+        resultContainer.innerHTML = ''; 
 
         try {
             const response = await fetch(API_ENDPOINT, {
@@ -99,13 +216,16 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await response.json();
 
             if (data.success && data.prompts) {
-                // --- 5. ✨ (الدمج) بناء البطاقات التفاعلية ---
+                // (إضافة عنوان للنتائج)
+                const titleKey = currentType === 'video' ? 'cardResultTitleVideo' : 'cardResultTitle';
+                resultContainer.innerHTML = `<h2><i class="fas fa-check-circle"></i> ${translations[currentLang][titleKey]}</h2>`;
+
                 data.prompts.forEach(p => {
                     const cardHTML = createPlatformCard(p.id, p.name, p.logo, p.url, p.prompt);
                     resultContainer.innerHTML += cardHTML;
                 });
                 
-                resultContainer.style.display = "grid"; // (إظهار الحاوية)
+                resultContainer.style.display = "grid"; 
                 resultContainer.scrollIntoView({ behavior: 'smooth' });
             } else {
                 throw new Error(data.error || "Invalid response from server");
@@ -113,7 +233,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         } catch (error) {
             console.error("Generation error:", error);
-            alert("Error generating prompt: " + error.message);
+            alert(translations[currentLang]['alertError'] + error.message);
         } finally {
             generateButton.disabled = false;
             loader.style.display = "none";
@@ -121,8 +241,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // --- 6. ✨ (الجديد) دالة بناء البطاقة التفاعلية ---
-    // (يجب جعلها عامة ليتمكن HTML من استدعائها)
     window.createPlatformCard = (platformId, name, logo, url, promptText) => {
         return `
             <div class="platform-card" data-platform="${platformId}">
@@ -133,10 +251,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     </div>
                     <div class="platform-actions">
                         <button class="action-btn copy-btn" onclick="copyPrompt('${platformId}')">
-                            <i class="fas fa-copy"></i> نسخ
+                            <i class="fas fa-copy"></i> ${translations[currentLang]['btnCopy']}
                         </button>
                         <a href="${url}" target="_blank" class="action-btn visit-btn">
-                            <i class="fas fa-external-link-alt"></i> زيارة الموقع
+                            <i class="fas fa-external-link-alt"></i> ${translations[currentLang]['btnVisit']}
                         </a>
                     </div>
                 </div>
@@ -145,14 +263,14 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
     }
 
-    // --- 7. ✨ (الجديد) دوال النسخ (العامة) ---
     window.copyPrompt = (platformId) => {
         const promptText = document.getElementById(`prompt-${platformId}`).textContent;
         navigator.clipboard.writeText(promptText).then(() => {
-            alert('✅ تم نسخ البرومبت بنجاح!');
+            alert(translations[currentLang]['alertCopied']);
         });
     }
 
-    // التهيئة الأولية
+    // --- 6. التهيئة الأولية ---
     updatePlatformOptions();
+    setLanguage(currentLang); // (تطبيق اللغة الإنجليزية الافتراضية عند التحميل)
 });
