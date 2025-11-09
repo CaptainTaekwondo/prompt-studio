@@ -1,6 +1,6 @@
-// script.js (الإصدار الاحترافي v3.0 - مع الترجمة)
+// script.js (الإصدار الاحترافي v3.0 - مع الترجمة والمشاركة)
 
-// --- ✨ 1. قاموس الترجمة (عربي/إنجليزي) ---
+// --- ✨ 1. قاموس الترجمة (تمت إضافة "المشاركة") ---
 const translations = {
     "en": {
         "langBtn": "العربية",
@@ -33,9 +33,11 @@ const translations = {
         "btnGenerate": "Generate Professional Prompts",
         "btnCopy": "Copy",
         "btnVisit": "Visit Site",
+        "btnShare": "Share", // <-- ✨ (الجديد)
         "alertIdea": "Please enter your idea first!",
         "alertError": "Error generating prompt: ",
         "alertCopied": "✅ Prompt copied successfully!",
+        "alertShareError": "Share API is not supported on this browser. Prompt copied instead!", // <-- ✨ (الجديد)
         "cardResultTitle": "🖼️ Image Platforms",
         "cardResultTitleVideo": "🎬 Video Platforms"
     },
@@ -70,16 +72,17 @@ const translations = {
         "btnGenerate": "توليد البرومبتات الاحترافية",
         "btnCopy": "نسخ",
         "btnVisit": "زيارة الموقع",
+        "btnShare": "مشاركة", // <-- ✨ (الجديد)
         "alertIdea": "الرجاء كتابة الفكرة الأساسية أولاً!",
         "alertError": "حدث خطأ: ",
         "alertCopied": "✅ تم نسخ البرومبت بنجاح!",
+        "alertShareError": "خاصية المشاركة غير مدعومة على هذا المتصفح. تم نسخ البرومبت بدلاً من ذلك!", // <-- ✨ (الجديد)
         "cardResultTitle": "🖼️ منصات الصور",
         "cardResultTitleVideo": "🎬 منصات الفيديو"
     }
 };
 
-// --- 2. دالة تغيير اللغة ---
-let currentLang = "en"; // (الافتراضي هو الإنجليزية)
+let currentLang = "en"; 
 
 function setLanguage(lang) {
     currentLang = lang;
@@ -92,27 +95,16 @@ function setLanguage(lang) {
         document.documentElement.dir = 'ltr';
         document.body.classList.remove('rtl');
     }
-
-    // تطبيق الترجمات على كل العناصر
     document.querySelectorAll('[data-i18n]').forEach(element => {
         const key = element.getAttribute('data-i18n');
-        if (translations[lang][key]) {
-            element.textContent = translations[lang][key];
-        }
+        if (translations[lang][key]) element.textContent = translations[lang][key];
     });
-
-    // تطبيق الترجمات على (Placeholders)
     document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
         const key = element.getAttribute('data-i18n-placeholder');
-        if (translations[lang][key]) {
-            element.placeholder = translations[lang][key];
-        }
+        if (translations[lang][key]) element.placeholder = translations[lang][key];
     });
-
-    // تحديث زر اللغة
     document.getElementById('lang-toggle-text').textContent = translations[lang]['langBtn'];
 }
-
 
 document.addEventListener("DOMContentLoaded", () => {
     
@@ -122,11 +114,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const lightingSelect = document.getElementById("lighting-select");
     const compositionSelect = document.getElementById("composition-select");
     const platformSelect = document.getElementById("platform-select");
-    
     const typeImageButton = document.getElementById("type-image");
     const typeVideoButton = document.getElementById("type-video");
     let currentType = "image"; 
-
     const generateButton = document.getElementById("generate-button");
     const loader = document.getElementById("loader");
     const resultContainer = document.getElementById("result-container"); 
@@ -134,47 +124,43 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const API_ENDPOINT = "/api/generate-prompt"; 
 
-    // --- 4. أحداث أزرار النوع ---
+    // --- 4. أحداث الأزرار ---
     typeImageButton.addEventListener("click", () => {
         currentType = "image";
         typeImageButton.classList.add("active");
         typeVideoButton.classList.remove("active");
         updatePlatformOptions();
     });
-
     typeVideoButton.addEventListener("click", () => {
         currentType = "video";
         typeVideoButton.classList.add("active");
         typeImageButton.classList.remove("active");
         updatePlatformOptions();
     });
-    
-    // --- 5. حدث زر تغيير اللغة ---
     langToggleButton.addEventListener("click", () => {
         const newLang = currentLang === 'en' ? 'ar' : 'en';
         setLanguage(newLang);
     });
 
-    // (باقي الكود كما هو)
     function updatePlatformOptions() {
         const imageOptions = platformSelect.querySelectorAll('optgroup[label="🖼️ Image Platforms"], optgroup[label="🖼️ Image Platforms"] > option, optgroup[label="🖼️ منصات الصور"], optgroup[label="🖼️ منصات الصور"] > option');
         const videoOptions = platformSelect.querySelectorAll('optgroup[label="🎬 Video Platforms"], optgroup[label="🎬 Video Platforms"] > option, optgroup[label="🎬 منصات الفيديو"], optgroup[label="🎬 منصات الفيديو"] > option');
-        
         if (currentType === 'image') {
             imageOptions.forEach(opt => opt.style.display = 'block');
             videoOptions.forEach(opt => opt.style.display = 'none');
-            if (platformSelect.value.startsWith('runway') || platformSelect.value.startsWith('pika')) {
+            if (platformSelect.value && (platformSelect.value.startsWith('runway') || platformSelect.value.startsWith('pika'))) {
                  platformSelect.value = 'all'; 
             }
         } else {
             imageOptions.forEach(opt => opt.style.display = 'none');
             videoOptions.forEach(opt => opt.style.display = 'block');
-            if (platformSelect.value.startsWith('midjourney') || platformSelect.value.startsWith('dalle3')) {
+            if (platformSelect.value && (platformSelect.value.startsWith('midjourney') || platformSelect.value.startsWith('dalle3'))) {
                  platformSelect.value = 'all';
             }
         }
     }
 
+    // --- 5. حدث التوليد الرئيسي ---
     generateButton.addEventListener("click", async () => {
         const idea = ideaInput.value.trim();
         const style = styleSelect.value;
@@ -198,39 +184,27 @@ document.addEventListener("DOMContentLoaded", () => {
             const response = await fetch(API_ENDPOINT, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    idea: idea,
-                    type: currentType,
-                    style: style,
-                    lighting: lighting,
-                    composition: composition,
-                    platform: platform
-                }),
+                body: JSON.stringify({ idea, type: currentType, style, lighting, composition, platform }),
             });
 
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.error || "API connection failed");
             }
-
             const data = await response.json();
 
             if (data.success && data.prompts) {
-                // (إضافة عنوان للنتائج)
                 const titleKey = currentType === 'video' ? 'cardResultTitleVideo' : 'cardResultTitle';
                 resultContainer.innerHTML = `<h2><i class="fas fa-check-circle"></i> ${translations[currentLang][titleKey]}</h2>`;
-
                 data.prompts.forEach(p => {
                     const cardHTML = createPlatformCard(p.id, p.name, p.logo, p.url, p.prompt);
                     resultContainer.innerHTML += cardHTML;
                 });
-                
                 resultContainer.style.display = "grid"; 
                 resultContainer.scrollIntoView({ behavior: 'smooth' });
             } else {
                 throw new Error(data.error || "Invalid response from server");
             }
-
         } catch (error) {
             console.error("Generation error:", error);
             alert(translations[currentLang]['alertError'] + error.message);
@@ -241,6 +215,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // --- 6. دالة بناء البطاقة التفاعلية (تمت إضافة زر المشاركة) ---
     window.createPlatformCard = (platformId, name, logo, url, promptText) => {
         return `
             <div class="platform-card" data-platform="${platformId}">
@@ -250,6 +225,9 @@ document.addEventListener("DOMContentLoaded", () => {
                         <div class="platform-name">${name}</div>
                     </div>
                     <div class="platform-actions">
+                        <button class="action-btn share-btn" onclick="sharePrompt('${platformId}')">
+                            <i class="fas fa-share-alt"></i> ${translations[currentLang]['btnShare']}
+                        </button>
                         <button class="action-btn copy-btn" onclick="copyPrompt('${platformId}')">
                             <i class="fas fa-copy"></i> ${translations[currentLang]['btnCopy']}
                         </button>
@@ -263,6 +241,7 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
     }
 
+    // --- 8. دالة النسخ (العامة) ---
     window.copyPrompt = (platformId) => {
         const promptText = document.getElementById(`prompt-${platformId}`).textContent;
         navigator.clipboard.writeText(promptText).then(() => {
@@ -270,7 +249,34 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // --- 6. التهيئة الأولية ---
+    // --- 9. ✨ (الجديد) دالة المشاركة (العامة) ---
+    window.sharePrompt = async (platformId) => {
+        const promptText = document.getElementById(`prompt-${platformId}`).textContent;
+        
+        // (بيانات المشاركة)
+        const shareData = {
+            title: `Prompt from ${translations['en']['headerTitle']}`, // (دائماً إنجليزي للمشاركة)
+            text: promptText,
+            url: window.location.href // (رابط الموقع)
+        };
+
+        // (التحقق إذا كان المتصفح يدعم المشاركة)
+        if (navigator.share) {
+            try {
+                await navigator.share(shareData);
+                console.log("Prompt shared successfully");
+            } catch (err) {
+                console.error("Share error:", err);
+            }
+        } else {
+            // (الحل البديل: إذا كان على ديسكتوب أو متصفح لا يدعم)
+            // (سنقوم بالنسخ بدلاً من ذلك)
+            copyPrompt(platformId);
+            alert(translations[currentLang]['alertShareError']);
+        }
+    }
+
+    // --- 10. التهيئة الأولية ---
     updatePlatformOptions();
-    setLanguage(currentLang); // (تطبيق اللغة الإنجليزية الافتراضية عند التحميل)
+    setLanguage(currentLang); // (تطبيق اللغة الإنجليزية الافتراضية)
 });
