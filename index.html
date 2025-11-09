@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prompt AI - صانع البرومبت الاحترافي</title>
+    <title>Prompt AI - Professional Prompt Maker</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
@@ -11,8 +11,12 @@
 
     <header class="header">
         <div class="container">
-            <h1><i class="fas fa-magic"></i> Prompt AI Studio</h1>
-            <p>حوّل أفكارك إلى برومبتات احترافية لجميع منصات الذكاء الاصطناعي</p>
+            <button id="lang-toggle" class="lang-toggle">
+                <i class="fas fa-language"></i> <span id="lang-toggle-text">العربية</span>
+            </button>
+            
+            <h1><i class="fas fa-magic"></i> <span data-i18n="headerTitle">Prompt AI Studio</span></h1>
+            <p data-i18n="headerSubtitle">Turn your ideas into professional prompts for all AI platforms</p>
         </div>
     </header>
 
@@ -20,62 +24,62 @@
 
         <div class="toggle-container">
             <button id="type-image" class="toggle-button active" data-type="image">
-                <i class="fas fa-image"></i> إنشاء الصور
+                <i class="fas fa-image"></i> <span data-i18n="btnImage">Image</span>
             </button>
             <button id="type-video" class="toggle-button" data-type="video">
-                <i class="fas fa-video"></i> إنشاء الفيديوهات
+                <i class="fas fa-video"></i> <span data-i18n="btnVideo">Video</span>
             </button>
         </div>
 
         <div class="card">
-            <h2><i class="fas fa-lightbulb" id="idea-icon"></i> 1. اكتب فكرتك الإبداعية</h2>
-            <textarea id="idea-input" placeholder="مثال: قطة ترتدي بدلة فضاء وتسبح في المجرة..."></textarea>
+            <h2><i class="fas fa-lightbulb" id="idea-icon"></i> <span data-i18n="card1Title">1. Describe Your Creative Idea</span></h2>
+            <textarea id="idea-input" data-i18n-placeholder="placeholderIdea"></textarea>
         </div>
 
         <div class="card">
-            <h2><i class="fas fa-sliders-h"></i> 2. إعدادات المحتوى</h2>
+            <h2><i class="fas fa-sliders-h"></i> <span data-i18n="card2Title">2. Content Settings</span></h2>
             
             <div class="controls-grid">
                 <div class="control-group">
-                    <label for="style-select"><i class="fas fa-palette"></i> النمط الفني</label>
+                    <label for="style-select"><i class="fas fa-palette"></i> <span data-i18n="labelStyle">Artistic Style</span></label>
                     <select id="style-select">
-                        <option value="">(افتراضي: واقعي)</option>
-                        <option value="realistic">واقعي (Realistic)</option>
-                        <option value="cinematic">سينمائي (Cinematic)</option>
-                        <option value="anime">أنمي (Anime)</option>
-                        <option value="digital art">فن رقمي (Digital Art)</option>
-                        <option value="fantasy">خيالي (Fantasy)</option>
+                        <option value="" data-i18n="optDefault">(Default: Realistic)</option>
+                        <option value="realistic" data-i18n="optRealistic">Realistic</option>
+                        <option value="cinematic" data-i18n="optCinematic">Cinematic</option>
+                        <option value="anime" data-i18n="optAnime">Anime</option>
+                        <option value="digital art" data-i18n="optDigitalArt">Digital Art</option>
+                        <option value="fantasy" data-i18n="optFantasy">Fantasy</option>
                     </select>
                 </div>
 
                 <div class="control-group">
-                    <label for="lighting-select"><i class="fas fa-sun"></i> الإضاءة</label>
+                    <label for="lighting-select"><i class="fas fa-sun"></i> <span data-i18n="labelLighting">Lighting</span></label>
                     <select id="lighting-select">
-                        <option value="">(افتراضي: طبيعية)</option>
-                        <option value="natural">طبيعية (Natural)</option>
-                        <option value="dramatic">درامية (Dramatic)</option>
-                        <option value="soft">ناعمة (Soft)</option>
-                        <option value="neon">نيون (Neon)</option>
+                        <option value="" data-i18n="optDefault">(Default: Natural)</option>
+                        <option value="natural" data-i18n="optNatural">Natural</option>
+                        <option value="dramatic" data-i18n="optDramatic">Dramatic</option>
+                        <option value="soft" data-i18n="optSoft">Soft</option>
+                        <option value="neon" data-i18n="optNeon">Neon</option>
                     </select>
                 </div>
 
                 <div class="control-group">
-                    <label for="composition-select"><i class="fas fa-camera"></i> التكوين</label>
+                    <label for="composition-select"><i class="fas fa-camera"></i> <span data-i18n="labelComposition">Composition</span></label>
                     <select id="composition-select">
-                        <option value="">(افتراضي: لقطة متوسطة)</option>
-                        <option value="close-up">لقطة قريبة (Close-up)</option>
-                        <option value="wide shot">لقطة واسعة (Wide Shot)</option>
-                        <option value="aerial view">منظر جوي (Aerial View)</option>
-                        <option value="dynamic angle">زاوية ديناميكية (Dynamic Angle)</option>
+                        <option value="" data-i18n="optDefault">(Default: Medium Shot)</option>
+                        <option value="close-up" data-i18n="optCloseup">Close-up</option>
+                        <option value="wide shot" data-i18n="optWideShot">Wide Shot</option>
+                        <option value="aerial view" data-i18n="optAerialView">Aerial View</option>
+                        <option value="dynamic angle" data-i18n="optDynamicAngle">Dynamic Angle</option>
                     </select>
                 </div>
 
                 <div class="control-group full-width">
-                    <label for="platform-select"><i class="fas fa-layer-group"></i> 3. اختر المنصة</label>
+                    <label for="platform-select"><i class="fas fa-layer-group"></i> <span data-i18n="labelPlatform">Select Platform</span></label>
                     <select id="platform-select">
-                        <option value="all">جميع المنصات (الكل)</option>
+                        <option value="all" data-i18n="optAllPlatforms">All Platforms</option>
                         
-                        <optgroup label="🖼️ منصات الصور" class="image-options">
+                        <optgroup label="🖼️ Image Platforms" class="image-options">
                             <option value="midjourney" data-logo="🎨">Midjourney</option>
                             <option value="dalle3" data-logo="🤖">DALL-E 3</option>
                             <option value="stablediffusion" data-logo="⚙️">Stable Diffusion</option>
@@ -86,7 +90,7 @@
                             <option value="grok" data-logo="🦄">Grok AI</option>
                         </optgroup>
                         
-                        <optgroup label="🎬 منصات الفيديو" class="video-options">
+                        <optgroup label="🎬 Video Platforms" class="video-options">
                             <option value="runway" data-logo="🎬">Runway ML</option>
                             <option value="pika" data-logo="⚡">Pika Labs</option>
                             <option value="luma" data-logo="✨">Luma Dream Machine</option>
@@ -100,7 +104,7 @@
         </div>
 
         <button id="generate-button">
-            <i class="fas fa-magic"></i> توليد البرومبتات الاحترافية
+            <i class="fas fa-magic"></i> <span data-i18n="btnGenerate">Generate Professional Prompts</span>
             <div class="loader" id="loader" style="display: none;"></div>
         </button>
 
