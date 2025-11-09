@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
 
@@ -7,8 +8,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// خدمة الملفات الثابتة
-app.use(express.static('.'));
+// خدمة الملفات الثابتة من المجلد الجذر
+app.use(express.static(path.join(__dirname, '..')));
 
 // نقطة API مبسطة وموثوقة
 app.post('/api/generate-prompt', (req, res) => {
@@ -17,8 +18,10 @@ app.post('/api/generate-prompt', (req, res) => {
         
         const { idea, type, style, lighting, composition } = req.body;
         
-        if (!idea) {
-            return res.status(400).json({ error: 'الفكرة مطلوبة' });
+        if (!idea || idea.trim().length < 3) {
+            return res.status(400).json({ 
+                error: 'يرجى إدخال فكرة واضحة (3 أحرف على الأقل)' 
+            });
         }
 
         const mediaType = (type === 'video') ? 'video scene' : 'image';
@@ -53,12 +56,17 @@ ${idea} | ${style || 'realistic'} style | ${lighting || 'professional'} lighting
 
 // نقطة للصحة
 app.get('/health', (req, res) => {
-    res.json({ status: 'OK', message: 'الخادم يعمل', timestamp: new Date().toISOString() });
+    res.json({ 
+        status: 'OK', 
+        message: 'الخادم يعمل', 
+        timestamp: new Date().toISOString(),
+        version: '1.0.0'
+    });
 });
 
-// التعامل مع جميع المسارات الأخرى
+// التعامل مع جميع المسارات الأخرى - خدمة الواجهة
 app.get('*', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
+    res.sendFile(path.join(__dirname, '../index.html'));
 });
 
 // التعامل مع الأخطاء
@@ -67,12 +75,5 @@ app.use((error, req, res, next) => {
     res.status(500).json({ error: 'خطأ غير متوقع في الخادم' });
 });
 
-// البورت من environment variable أو 3000 افتراضي
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📧 Health check: http://localhost:${PORT}/health`);
-});
-
+// التصدير لـ Vercel Serverless
 module.exports = app;
