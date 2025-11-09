@@ -1,0 +1,24 @@
+{
+  "name": "prompt-studio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI-powered prompt generator for social media",
+  "main": "api/server.js",
+  "scripts": {
+    "start": "node api/server.js",
+    "dev": "nodemon api/server.js"
+  },
+  "keywords": ["ai", "prompts", "social", "generator", "arabic"],
+  "author": "CaptainTaekwondo",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
