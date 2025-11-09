@@ -1,61 +1,78 @@
 const express = require('express');
 const cors = require('cors');
-const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const app = express();
+
+// CORS مبسط
 app.use(cors());
 app.use(express.json());
 
-// استخدام environment variable من Vercel
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+// خدمة الملفات الثابتة
+app.use(express.static('.'));
 
-app.post('/api/generate-prompt', async (req, res) => {
+// نقطة API مبسطة وموثوقة
+app.post('/api/generate-prompt', (req, res) => {
     try {
-        if (!GEMINI_API_KEY) {
-            throw new Error("GEMINI_API_KEY غير موجود في environment variables");
-        }
-
-        const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-
+        console.log('Received request:', req.body);
+        
         const { idea, type, style, lighting, composition } = req.body;
         
+        if (!idea) {
+            return res.status(400).json({ error: 'الفكرة مطلوبة' });
+        }
+
         const mediaType = (type === 'video') ? 'video scene' : 'image';
-        const fullPrompt = `
-            You are a world-class prompt engineer for AI image and video generators.
-            Your task is to take a simple user idea and convert it into multiple, expert-level, detailed professional prompts in ENGLISH.
-            
-            RULES:
-            1. All prompts MUST be in ENGLISH.
-            2. Generate a list of 5 professional prompts, one for each of the following platforms: Midjourney, DALL-E 3, Stable Diffusion, Grok (xAI), and Leonardo.ai.
-            3. For Midjourney: Include parameters like --ar, --v 6, --style raw.
-            4. For Stable Diffusion: Include a detailed "Negative prompt:".
-            5. For DALL-E 3: Use simple, clear descriptive language.
-            6. For Leonardo.ai: Include model presets if possible.
-            7. Make each prompt highly detailed, adding visual keywords, 8k, ultra-realistic, cinematic details based on the user's style.
-            8. Return ONLY the 5 prompts, separated by "---".
-            9. DO NOT include my instructions or any other text in your response.
-
-            USER INPUTS:
-            - Core Idea: "${idea}"
-            - Type: ${mediaType}
-            - Style: "${style}"
-            - Lighting: "${lighting}"
-            - Composition: "${composition}"
-        `;
         
-        const result = await model.generateContent(fullPrompt);
-        const generatedText = await result.response.text();
+        // إنشاء برومبتات احترافية بدون الحاجة لـ API خارجي
+        const prompts = `
+🎨 **Midjourney Prompt:**
+${idea}, ${style || 'realistic'} style, ${lighting || 'natural'} lighting, ${composition || 'medium shot'} composition, 8K resolution, ultra-detailed, cinematic quality --ar 16:9 --v 6 --style raw
 
-        res.json({ professionalPrompt: generatedText });
+🖼️ **DALL-E 3 Prompt:**
+A professional ${style || 'realistic'} ${mediaType} of "${idea}" with ${lighting || 'natural'} lighting and ${composition || 'creative'} composition, highly detailed, 8K
+
+🎭 **Stable Diffusion Prompt:**
+masterpiece, best quality, 8K UHD, ${idea}, ${style || 'photorealistic'}, ${lighting || 'studio light'}, ${composition || 'dynamic angle'}
+Negative prompt: blurry, low quality, cartoon, anime, worst quality
+
+🤖 **Grok Prompt:**
+Generate a detailed AI prompt for: "${idea}" with ${style || 'cinematic'} style, ${lighting || 'dramatic'} lighting, and ${composition || 'professional'} framing
+
+⚡ **Leonardo.ai Prompt:**
+${idea} | ${style || 'realistic'} style | ${lighting || 'professional'} lighting | ${composition || 'well-composed'} | 8K | ultra-detailed | cinematic
+        `.trim();
+
+        console.log('Generated prompts successfully');
+        res.json({ professionalPrompt: prompts });
 
     } catch (error) {
-        console.error("Error:", error.message);
-        res.status(500).json({ error: `فشل في توليد البرومبت: ${error.message}` });
+        console.error('Error in API:', error);
+        res.status(500).json({ error: 'حدث خطأ في الخادم: ' + error.message });
     }
 });
 
-// خدمة الملفات الثابتة
-app.use(express.static('.'));
+// نقطة للصحة
+app.get('/health', (req, res) => {
+    res.json({ status: 'OK', message: 'الخادم يعمل', timestamp: new Date().toISOString() });
+});
+
+// التعامل مع جميع المسارات الأخرى
+app.get('*', (req, res) => {
+    res.sendFile(__dirname + '/index.html');
+});
+
+// التعامل مع الأخطاء
+app.use((error, req, res, next) => {
+    console.error('Unhandled error:', error);
+    res.status(500).json({ error: 'خطأ غير متوقع في الخادم' });
+});
+
+// البورت من environment variable أو 3000 افتراضي
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📧 Health check: http://localhost:${PORT}/health`);
+});
 
 module.exports = app;
