@@ -5,28 +5,61 @@
     --light: #f8fafc;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* --- ✨ 1. الإعدادات الافتراضية (الإنجليزية LTR) --- */
 body {
-    font-family: 'Cairo', sans-serif; /* (استخدام الخط العربي) */
-    direction: rtl;
+    font-family: 'Cairo', sans-serif; 
+    direction: ltr; /* (الافتراضي LTR) */
+    text-align: left;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     padding: 20px;
     line-height: 1.6;
 }
+/* --- ✨ 2. كلاس "العربية" (RTL) --- */
+body.rtl {
+    direction: rtl;
+    text-align: right;
+}
 .container { max-width: 1000px; margin: 0 auto; }
 
-/* --- الهيدر (من تصميمك) --- */
+/* --- الهيدر --- */
 .header {
     text-align: center;
     margin-bottom: 40px;
     color: white;
+    position: relative; /* (للسماح بوضع الزر) */
 }
+/* --- ✨ 3. زر تغيير اللغة --- */
+.lang-toggle {
+    position: absolute;
+    top: 10px;
+    right: 10px; /* (الافتراضي LTR) */
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid white;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    font-family: 'Cairo', sans-serif;
+}
+body.rtl .lang-toggle {
+    right: auto;
+    left: 10px; /* (عندما يكون عربي) */
+}
+.lang-toggle i { margin-right: 5px; }
+body.rtl .lang-toggle i { margin-left: 5px; margin-right: 0; }
+
+
 .header h1 {
     font-size: 2.5rem;
     margin-bottom: 10px;
     text-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
-.header h1 i { margin-left: 10px; color: #ffeb3b; }
+.header h1 i { margin-right: 10px; color: #ffeb3b; } /* (تعديل لـ LTR) */
+body.rtl .header h1 i { margin-left: 10px; margin-right: 0; }
+
 .header p { font-size: 1.2rem; opacity: 0.9; }
 
 /* --- زر الاختيار (صورة/فيديو) --- */
@@ -36,12 +69,15 @@ body {
     border: 2px solid #ffffff; background-color: transparent; color: white;
     cursor: pointer; transition: all 0.3s ease;
 }
-.toggle-button i { margin-left: 8px; }
-.toggle-button:first-of-type { border-top-right-radius: 8px; border-bottom-right-radius: 8px; border-left-width: 1px; }
-.toggle-button:last-of-type { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+.toggle-button i { margin-right: 8px; } /* (تعديل لـ LTR) */
+body.rtl .toggle-button i { margin-left: 8px; margin-right: 0; }
+.toggle-button:first-of-type { border-top-left-radius: 8px; border-bottom-left-radius: 8px; border-right-width: 1px; } /* (تعديل لـ LTR) */
+.toggle-button:last-of-type { border-top-right-radius: 8px; border-bottom-right-radius: 8px; } /* (تعديل لـ LTR) */
+body.rtl .toggle-button:first-of-type { border-top-right-radius: 8px; border-bottom-right-radius: 8px; border-left-width: auto; border-right-width: 1px; }
+body.rtl .toggle-button:last-of-type { border-top-left-radius: 8px; border-bottom-left-radius: 8px; border-top-right-radius: 0; border-bottom-right-radius: 0; }
 .toggle-button.active { background-color: white; color: #764ba2; }
 
-/* --- البطاقة الرئيسية (من تصميمك) --- */
+/* --- البطاقة الرئيسية --- */
 .card {
     background: white;
     border-radius: 20px;
@@ -53,9 +89,10 @@ body {
     margin-top: 0; color: #764ba2; border-bottom: 2px solid #f0f2f5;
     padding-bottom: 10px; font-size: 1.6em;
 }
-.card h2 i { margin-left: 10px; color: #ffeb3b; } /* (أيقونة صفراء) */
+.card h2 i { margin-right: 10px; color: #ffeb3b; } /* (أيقونة صفراء) (تعديل لـ LTR) */
+body.rtl .card h2 i { margin-left: 10px; margin-right: 0; }
 
-/* --- الفورم (من تصميمك) --- */
+/* --- الفورم --- */
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -68,6 +105,8 @@ label {
     display: block; margin-bottom: 8px; font-weight: 600;
     color: var(--dark); font-size: 1.1rem;
 }
+label i { margin-right: 8px; } /* (تعديل لـ LTR) */
+body.rtl label i { margin-left: 8px; margin-right: 0; }
 textarea, select {
     width: 100%; padding: 15px; border: 2px solid #e2e8f0;
     border-radius: 12px; font-size: 16px;
@@ -80,13 +119,11 @@ textarea:focus, select:focus {
 }
 
 /* --- (هام) إخفاء الخيارات غير النشطة --- */
-.video-option, .image-option {
-    display: none; /* (سيقوم script.js بإظهارها) */
-}
+.video-options, .image-options { }
 
-/* --- زر التوليد (من تصميمك) --- */
+/* --- زر التوليد --- */
 #generate-button {
-    background: linear-gradient(135deg, #ff8008 0%, #ffc837 100%); /* (لون برتقالي) */
+    background: linear-gradient(135deg, #ff8008 0%, #ffc837 100%); 
     color: white; border: none; padding: 18px 40px;
     border-radius: 12px; font-size: 18px; font-weight: 600;
     cursor: pointer; transition: all 0.3s ease;
@@ -100,19 +137,19 @@ textarea:focus, select:focus {
     background: #ccc; cursor: not-allowed; transform: none;
 }
 
-/* --- التحميل (من تصميمك) --- */
+/* --- التحميل --- */
 #loader {
     width: 20px; height: 20px;
     border: 4px solid #f3f3f3;
     border-top: 4px solid var(--primary);
     border-radius: 50%;
     animation: spin 1s linear infinite;
+    display: none; 
 }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-/* --- 5. بطاقات النتائج التفاعلية (من تصميمك) --- */
+/* --- بطاقات النتائج التفاعلية --- */
 .result-container {
-    display: none;
     margin-top: 30px;
     display: grid;
     gap: 20px;
@@ -120,8 +157,13 @@ textarea:focus, select:focus {
 .platform-card {
     background: white; border-radius: 15px; padding: 20px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    border-left: 5px solid #667eea;
+    border-right: 5px solid #667eea; /* (تعديل لـ LTR) */
+    border-left: none;
     transition: transform 0.3s ease;
+}
+body.rtl .platform-card {
+    border-left: 5px solid #667eea;
+    border-right: none;
 }
 .platform-card:hover { transform: translateY(-5px); }
 .platform-header {
@@ -131,7 +173,7 @@ textarea:focus, select:focus {
 }
 .platform-info { display: flex; align-items: center; gap: 12px; }
 .platform-logo {
-    font-size: 2em; width: 50px; height: 50px;
+    font-size: 1.5em; width: 40px; height: 40px;
     display: flex; align-items: center; justify-content: center;
     background: linear-gradient(135deg, #667eea, #764ba2);
     border-radius: 10px; color: white;
@@ -148,21 +190,19 @@ textarea:focus, select:focus {
 .visit-btn { background: #007bff; color: white; text-decoration: none; }
 .visit-btn:hover { background: #0056b3; transform: scale(1.05); }
 
-/* (إخفاء أزرار الإجراءات السريعة - سنضيفها لاحقاً) */
-.quick-actions { display: none; }
-
 .prompt-text {
     background: #f8f9fa; border: 1px solid #e9ecef;
     border-radius: 8px; padding: 15px;
-    font-family: 'Courier New', monospace; font-size: 1.1em; /* (تكبير الخط) */
+    font-family: 'Courier New', monospace; font-size: 1.1em; 
     line-height: 1.5; white-space: pre-wrap;
     max-height: 200px; overflow-y: auto;
-    text-align: left; direction: ltr; /* (لضمان الإنجليزية) */
+    text-align: left; direction: ltr; /* (البرومبت دائماً LTR) */
 }
 
-/* (للهواتف، اجعلها عمود واحد) */
 @media (max-width: 768px) {
     .form-grid { grid-template-columns: 1fr; }
     .card { padding: 25px; }
     .header h1 { font-size: 2rem; }
+    .platform-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .platform-actions { justify-content: flex-start; }
 }
