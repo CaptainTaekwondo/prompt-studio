@@ -47,7 +47,7 @@ body.rtl {
     cursor: pointer;
     font-weight: bold;
     font-family: 'Cairo', sans-serif;
-    z-index: 10; /* (لضمان أنه فوق كل شيء) */
+    z-index: 10; 
 }
 body.rtl .lang-toggle {
     right: auto;
@@ -61,12 +61,10 @@ body.rtl .lang-toggle i { margin-left: 5px; margin-right: 0; }
     font-size: 2.5rem;
     margin-bottom: 10px;
     text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-    /* --- ✨ 1. (الإصلاح) إضافة "فاصل" علوي لترك مساحة للزر --- */
-    padding-top: 40px; 
+    padding-top: 40px; /* (الفاصل) */
 }
 .header h1 i { margin-right: 10px; color: #ffeb3b; } 
 body.rtl .header h1 i { margin-left: 10px; margin-right: 0; }
-
 .header p { font-size: 1.2rem; opacity: 0.9; }
 
 /* --- زر الاختيار (صورة/فيديو) --- */
@@ -98,11 +96,7 @@ body.rtl .toggle-button:last-of-type { border-top-left-radius: 8px; border-botto
 }
 .card h2 i { margin-right: 10px; } 
 body.rtl .card h2 i { margin-left: 10px; margin-right: 0; }
-
-/* --- (أيقونة "الفكرة" الصفراء) --- */
-#idea-icon {
-    color: #ffeb3b; 
-}
+#idea-icon { color: #ffeb3b; }
 
 /* --- الفورم --- */
 .form-grid {
@@ -202,6 +196,16 @@ body.rtl .platform-card {
 .visit-btn { background: #007bff; color: white; text-decoration: none; }
 .visit-btn:hover { background: #0056b3; transform: scale(1.05); }
 
+/* --- ✨ 2. تصميم زر المشاركة الجديد --- */
+.share-btn {
+    background: #1DA1F2; /* (لون أزرق مثل تويتر) */
+    color: white;
+}
+.share-btn:hover {
+    background: #0c85d0;
+    transform: scale(1.05);
+}
+
 .prompt-text {
     background: #f8f9fa; border: 1px solid #e9ecef;
     border-radius: 8px; padding: 15px;
@@ -217,4 +221,4 @@ body.rtl .platform-card {
     .header h1 { font-size: 2rem; }
     .platform-header { flex-direction: column; align-items: flex-start; gap: 10px; }
     .platform-actions { justify-content: flex-start; }
-}
+    }
