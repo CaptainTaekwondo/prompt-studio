@@ -1,13 +1,15 @@
 {
-  "name": "prompt-ai",
+  "name": "prompt-studio",
   "version": "1.0.0",
+  "description": "AI Prompt Generator using Gemini API",
   "main": "index.html",
   "scripts": {
     "start": "node api/server.js"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.11.3",
+    "express": "^4.19.2",
     "cors": "^2.8.5",
-    "express": "^4.19.2"
+    "@google/generative-ai": "^0.1.0",
+    "@google-cloud/secret-manager": "^5.0.0"  <-- هذا هو الإضافة الجديدة
   }
 }
