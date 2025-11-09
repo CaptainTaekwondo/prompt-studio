@@ -8,10 +8,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const compositionSelect = document.getElementById("composition-select");
     const aspectRatioSelect = document.getElementById("aspect-ratio-select");
     
-    // (العناصر الجديدة)
     const typeImageButton = document.getElementById("type-image");
     const typeVideoButton = document.getElementById("type-video");
-    let currentType = "image"; // (النوع الافتراضي هو صورة)
+    let currentType = "image";
 
     const generateButton = document.getElementById("generate-button");
     const loader = document.getElementById("loader");
@@ -35,10 +34,8 @@ document.addEventListener("DOMContentLoaded", () => {
         typeImageButton.classList.remove("active");
     });
 
-
     // --- 4. الحدث الرئيسي: الضغط على زر "ولّد" ---
     generateButton.addEventListener("click", async () => {
-        // قراءة القيم من الفورم
         const idea = ideaInput.value;
         const style = styleSelect.value;
         const lighting = lightingSelect.value;
@@ -51,14 +48,12 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // إظهار التحميل
         generateButton.disabled = true;
         loader.style.display = "block";
         generateButton.querySelector("i").style.display = "none";
         resultCard.style.display = "none"; 
 
         try {
-            // 5. إرسال الطلب إلى "العقل المدبر" (API)
             const response = await fetch(API_ENDPOINT, {
                 method: "POST",
                 headers: {
@@ -66,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 },
                 body: JSON.stringify({
                     idea: idea,
-                    type: currentType, // (إرسال النوع: صورة أم فيديو)
+                    type: currentType,
                     style: style,
                     lighting: lighting,
                     composition: composition
@@ -79,12 +74,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             const data = await response.json();
+            const finalPrompt = `${data.professionalPrompt}\n\n${aspectRatio}`;
 
-            // 6. بناء البرومبت النهائي (إضافة الأبعاد)
-            // (الآن الرد من Gemini سيحتوي على كل البرومبتات)
-            const finalPrompt = `${data.professionalPrompt}\n\n(تم توليده باستخدام الأبعاد: ${aspectRatio})`;
-
-            // 7. عرض النتيجة
             resultPrompt.value = finalPrompt;
             resultCard.style.display = "block";
 
@@ -92,7 +83,6 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error(error);
             alert("حدث خطأ أثناء توليد البرومبت: " + error.message);
         } finally {
-            // 8. إرجاع الزر لحالته الطبيعية
             generateButton.disabled = false;
             loader.style.display = "none";
             generateButton.querySelector("i").style.display = "inline-block";
