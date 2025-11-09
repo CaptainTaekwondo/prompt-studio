@@ -4,10 +4,12 @@
 const translations = {
     "en": {
         "langBtn": "العربية",
-        "headerTitle": "Prompt AI Studio",
+        "headerTitle": "✨️ Prompt AI pro ✨️",
+        "year": "2025",
         "headerSubtitle": "Turn your ideas into professional prompts for all AI platforms",
         "btnImage": "Image",
         "btnVideo": "Video",
+        "btnShareSite": "Share Site", // <-- ✨ (الجديد)
         "card1Title": "1. Describe Your Creative Idea",
         "placeholderIdea": "Example: A cat wearing a spacesuit, sitting on the moon...",
         "card2Title": "2. Content Settings",
@@ -33,20 +35,22 @@ const translations = {
         "btnGenerate": "Generate Professional Prompts",
         "btnCopy": "Copy",
         "btnVisit": "Visit Site",
-        "btnShare": "Share", // <-- ✨ (الجديد)
+        "btnShare": "Share", 
         "alertIdea": "Please enter your idea first!",
         "alertError": "Error generating prompt: ",
         "alertCopied": "✅ Prompt copied successfully!",
-        "alertShareError": "Share API is not supported on this browser. Prompt copied instead!", // <-- ✨ (الجديد)
+        "alertShareError": "Share API is not supported on this browser. Prompt copied instead!", 
         "cardResultTitle": "🖼️ Image Platforms",
         "cardResultTitleVideo": "🎬 Video Platforms"
     },
     "ar": {
         "langBtn": "English",
-        "headerTitle": "استوديو البرومبتات الذكي",
+        "headerTitle": "✨️ Prompt AI pro ✨️",
+        "year": "2025",
         "headerSubtitle": "حوّل أفكارك إلى برومبتات احترافية لجميع منصات الذكاء الاصطناعي",
         "btnImage": "إنشاء الصور",
         "btnVideo": "إنشاء الفيديوهات",
+        "btnShareSite": "مشاركة الموقع", // <-- ✨ (الجديد)
         "card1Title": "1. اكتب فكرتك الإبداعية",
         "placeholderIdea": "مثال: قطة ترتدي بدلة فضاء وتسبح في المجرة...",
         "card2Title": "2. إعدادات المحتوى",
@@ -72,11 +76,11 @@ const translations = {
         "btnGenerate": "توليد البرومبتات الاحترافية",
         "btnCopy": "نسخ",
         "btnVisit": "زيارة الموقع",
-        "btnShare": "مشاركة", // <-- ✨ (الجديد)
+        "btnShare": "مشاركة", 
         "alertIdea": "الرجاء كتابة الفكرة الأساسية أولاً!",
         "alertError": "حدث خطأ: ",
         "alertCopied": "✅ تم نسخ البرومبت بنجاح!",
-        "alertShareError": "خاصية المشاركة غير مدعومة على هذا المتصفح. تم نسخ البرومبت بدلاً من ذلك!", // <-- ✨ (الجديد)
+        "alertShareError": "خاصية المشاركة غير مدعومة على هذا المتصفح. تم نسخ البرومبت بدلاً من ذلك!", 
         "cardResultTitle": "🖼️ منصات الصور",
         "cardResultTitleVideo": "🎬 منصات الفيديو"
     }
@@ -108,7 +112,7 @@ function setLanguage(lang) {
 
 document.addEventListener("DOMContentLoaded", () => {
     
-    // --- 3. تحديد العناصر ---
+    // --- 3. تحديد العناصر (تمت إضافة الزر الجديد) ---
     const ideaInput = document.getElementById("idea-input");
     const styleSelect = document.getElementById("style-select");
     const lightingSelect = document.getElementById("lighting-select");
@@ -121,6 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const loader = document.getElementById("loader");
     const resultContainer = document.getElementById("result-container"); 
     const langToggleButton = document.getElementById("lang-toggle");
+    const shareSiteButton = document.getElementById("share-site-button"); // <-- ✨ (الجديد)
 
     const API_ENDPOINT = "/api/generate-prompt"; 
 
@@ -141,6 +146,27 @@ document.addEventListener("DOMContentLoaded", () => {
         const newLang = currentLang === 'en' ? 'ar' : 'en';
         setLanguage(newLang);
     });
+    
+    // --- ✨ 5. (الجديد) حدث زر مشاركة الموقع ---
+    shareSiteButton.addEventListener("click", async () => {
+        const shareData = {
+            title: translations['en']['headerTitle'], // (دائماً إنجليزي للمشاركة)
+            text: translations[currentLang]['headerSubtitle'], // (الوصف باللغة الحالية)
+            url: window.location.href // (رابط الموقع)
+        };
+        if (navigator.share) {
+            try {
+                await navigator.share(shareData);
+            } catch (err) {
+                console.error("Share error:", err);
+            }
+        } else {
+            // (الحل البديل: نسخ الرابط)
+            navigator.clipboard.writeText(window.location.href);
+            alert(translations[currentLang]['alertShareError']);
+        }
+    });
+
 
     function updatePlatformOptions() {
         const imageOptions = platformSelect.querySelectorAll('optgroup[label="🖼️ Image Platforms"], optgroup[label="🖼️ Image Platforms"] > option, optgroup[label="🖼️ منصات الصور"], optgroup[label="🖼️ منصات الصور"] > option');
@@ -160,7 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // --- 5. حدث التوليد الرئيسي ---
+    // --- 6. حدث التوليد الرئيسي ---
     generateButton.addEventListener("click", async () => {
         const idea = ideaInput.value.trim();
         const style = styleSelect.value;
@@ -215,7 +241,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // --- 6. دالة بناء البطاقة التفاعلية (تمت إضافة زر المشاركة) ---
+    // --- 7. دالة بناء البطاقة التفاعلية (تمت إضافة زر المشاركة) ---
     window.createPlatformCard = (platformId, name, logo, url, promptText) => {
         return `
             <div class="platform-card" data-platform="${platformId}">
@@ -253,14 +279,12 @@ document.addEventListener("DOMContentLoaded", () => {
     window.sharePrompt = async (platformId) => {
         const promptText = document.getElementById(`prompt-${platformId}`).textContent;
         
-        // (بيانات المشاركة)
         const shareData = {
-            title: `Prompt from ${translations['en']['headerTitle']}`, // (دائماً إنجليزي للمشاركة)
+            title: `Prompt from ${translations['en']['headerTitle']}`, 
             text: promptText,
-            url: window.location.href // (رابط الموقع)
+            url: window.location.href 
         };
 
-        // (التحقق إذا كان المتصفح يدعم المشاركة)
         if (navigator.share) {
             try {
                 await navigator.share(shareData);
@@ -269,8 +293,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 console.error("Share error:", err);
             }
         } else {
-            // (الحل البديل: إذا كان على ديسكتوب أو متصفح لا يدعم)
-            // (سنقوم بالنسخ بدلاً من ذلك)
             copyPrompt(platformId);
             alert(translations[currentLang]['alertShareError']);
         }
