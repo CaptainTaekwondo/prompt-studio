@@ -11,7 +11,6 @@
 
     <header class="header">
         <div class="container">
-            
             <div class="header-buttons">
                 <button id="lang-toggle" class="header-btn">
                     <i class="fas fa-language"></i> <span id="lang-toggle-text">العربية</span>
@@ -20,14 +19,12 @@
                     <i class="fas fa-share-alt"></i> <span data-i18n="btnShareSite">Share</span>
                 </button>
             </div>
-            
             <h1><i class="fas fa-magic-sparkles"></i> <span data-i18n="headerTitle">✨️ Prompt AI pro ✨️</span></h1>
             <p class="year" data-i18n="year">2025</p>
         </div>
     </header>
 
     <main class="container">
-
         <div class="toggle-container">
             <button id="type-image" class="toggle-button active" data-type="image">
                 <i class="fas fa-image"></i> <span data-i18n="btnImage">Image</span>
@@ -77,6 +74,17 @@
                         <option value="wide shot" data-i18n="optWideShot">Wide Shot</option>
                         <option value="aerial view" data-i18n="optAerialView">Aerial View</option>
                         <option value="dynamic angle" data-i18n="optDynamicAngle">Dynamic Angle</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="aspect-ratio-select"><i class="fas fa-expand-arrows-alt"></i> <span data-i18n="labelAspectRatio">Aspect Ratio</span></label>
+                    <select id="aspect-ratio-select">
+                        <option value="1:1" data-i18n="optAr1x1">1:1 (Square) - Instagram Post</option>
+                        <option value="9:16" data-i18n="optAr9x16">9:16 (Portrait) - TikTok/Story</option>
+                        <option value="16:9" data-i18n="optAr16x9">16:9 (Landscape) - YouTube</option>
+                        <option value="4:5" data-i18n="optAr4x5">4:5 (Tall) - Instagram Portrait</option>
+                        <option value="4:3" data-i18n="optAr4x3">4:3 (Standard) - Photo</option>
                     </select>
                 </div>
 
