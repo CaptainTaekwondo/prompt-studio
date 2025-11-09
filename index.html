@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prompt AI - صانع البرومبت الاحترافي</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
@@ -12,8 +11,8 @@
 
     <header class="header">
         <div class="container">
-            <h1><i class="fas fa-magic-sparkles"></i> Prompt AI</h1>
-            <p>حوّل فكرتك البسيطة إلى برومبت احترافي</p>
+            <h1><i class="fas fa-magic"></i> Prompt AI Studio</h1>
+            <p>حوّل أفكارك إلى برومبتات احترافية لجميع منصات الذكاء الاصطناعي</p>
         </div>
     </header>
 
@@ -21,34 +20,31 @@
 
         <div class="toggle-container">
             <button id="type-image" class="toggle-button active" data-type="image">
-                <i class="fas fa-image"></i> صورة
+                <i class="fas fa-image"></i> إنشاء الصور
             </button>
             <button id="type-video" class="toggle-button" data-type="video">
-                <i class="fas fa-video"></i> فيديو
+                <i class="fas fa-video"></i> إنشاء الفيديوهات
             </button>
         </div>
 
         <div class="card">
-            <h2><i class="fas fa-lightbulb"></i> 1. صِف فكرتك الأساسية</h2>
-            <textarea id="idea-input" placeholder="مثال: قطة ترتدي قبعة فضاء وتجلس على القمر..."></textarea>
+            <h2><i class="fas fa-lightbulb" id="idea-icon"></i> 1. اكتب فكرتك الإبداعية</h2>
+            <textarea id="idea-input" placeholder="مثال: قطة ترتدي بدلة فضاء وتسبح في المجرة..."></textarea>
         </div>
 
         <div class="card">
-            <h2><i class="fas fa-palette"></i> 2. اختر الإعدادات</h2>
+            <h2><i class="fas fa-sliders-h"></i> 2. إعدادات المحتوى</h2>
             
             <div class="controls-grid">
                 <div class="control-group">
-                    <label for="style-select"><i class="fas fa-paint-brush"></i> الأسلوب الفني</label>
+                    <label for="style-select"><i class="fas fa-palette"></i> النمط الفني</label>
                     <select id="style-select">
                         <option value="">(افتراضي: واقعي)</option>
-                        <option value="Cinematic">سينمائي (Cinematic)</option>
-                        <option value="Photorealistic">تصوير فوتوغرافي (Photorealistic)</option>
-                        <option value="Digital Art">فن رقمي (Digital Art)</option>
-                        <option value="Anime/Manga Style">أنمي/مانجا (Anime/Manga)</option>
-                        <option value="Pixel Art">فن البكسل (Pixel Art)</option>
-                        <option value="Cartoon Style">نمط كرتوني (Cartoon Style)</option>
-                        <option value="Moody">مودي (Moody)</option>
-                        <option value="Neon / Cyberpunk">فن النيون/سايبربانك (Neon / Cyberpunk)</option>
+                        <option value="realistic">واقعي (Realistic)</option>
+                        <option value="cinematic">سينمائي (Cinematic)</option>
+                        <option value="anime">أنمي (Anime)</option>
+                        <option value="digital art">فن رقمي (Digital Art)</option>
+                        <option value="fantasy">خيالي (Fantasy)</option>
                     </select>
                 </div>
 
@@ -56,47 +52,60 @@
                     <label for="lighting-select"><i class="fas fa-sun"></i> الإضاءة</label>
                     <select id="lighting-select">
                         <option value="">(افتراضي: طبيعية)</option>
-                        <option value="Studio Light">إضاءة استوديو (Studio Light)</option>
-                        <option value="Neon Lighting">إضاءة نيون (Neon Lighting)</option>
-                        <option value="Golden Hour">الساعة الذهبية (Golden Hour)</option>
-                        <option value="Dramatic Lighting">إضاءة درامية (Dramatic Lighting)</option>
-                        <option value="Dim Lighting">إضاءة خافتة (Dim Lighting)</option>
+                        <option value="natural">طبيعية (Natural)</option>
+                        <option value="dramatic">درامية (Dramatic)</option>
+                        <option value="soft">ناعمة (Soft)</option>
+                        <option value="neon">نيون (Neon)</option>
                     </select>
                 </div>
 
                 <div class="control-group">
-                    <label for="composition-select"><i class="fas fa-camera-retro"></i> زاوية الكاميرا</label>
+                    <label for="composition-select"><i class="fas fa-camera"></i> التكوين</label>
                     <select id="composition-select">
                         <option value="">(افتراضي: لقطة متوسطة)</option>
-                        <option value="Ultra-Wide Angle">لقطة واسعة جداً (Ultra-Wide)</option>
-                        <option value="Close-up">لقطة قريبة (Close-up)</option>
-                        <option value="Low-Angle Shot">لقطة من الأسفل (Low-Angle)</option>
-                        <option value="Aerial View">لقطة جوية (Aerial View)</option>
-                        <option value="Portrait">بورتريه (Portrait)</option>
+                        <option value="close-up">لقطة قريبة (Close-up)</option>
+                        <option value="wide shot">لقطة واسعة (Wide Shot)</option>
+                        <option value="aerial view">منظر جوي (Aerial View)</option>
+                        <option value="dynamic angle">زاوية ديناميكية (Dynamic Angle)</option>
                     </select>
                 </div>
 
-                <div class="control-group">
-                    <label for="aspect-ratio-select"><i class="fas fa-expand-arrows-alt"></i> الأبعاد</label>
-                    <select id="aspect-ratio-select">
-                        <option value="--ar 1:1">مربع (1:1) - (انستجرام)</option>
-                        <option value="--ar 9:16">بورتريه (9:16) - (تيك توك/ستوري)</option>
-                        <option value="--ar 16:9">عرضي (16:9) - (يوتيوب)</option>
+                <div class="control-group full-width">
+                    <label for="platform-select"><i class="fas fa-layer-group"></i> 3. اختر المنصة</label>
+                    <select id="platform-select">
+                        <option value="all">جميع المنصات (الكل)</option>
+                        
+                        <optgroup label="🖼️ منصات الصور" class="image-options">
+                            <option value="midjourney" data-logo="🎨">Midjourney</option>
+                            <option value="dalle3" data-logo="🤖">DALL-E 3</option>
+                            <option value="stablediffusion" data-logo="⚙️">Stable Diffusion</option>
+                            <option value="leonardo" data-logo="🦁">Leonardo.ai</option>
+                            <option value="adobefirefly" data-logo="🔥">Adobe Firefly</option>
+                            <option value="gemini" data-logo="💎">Google Gemini</option>
+                            <option value="chatgpt" data-logo="💬">ChatGPT DALL-E</option>
+                            <option value="grok" data-logo="🦄">Grok AI</option>
+                        </optgroup>
+                        
+                        <optgroup label="🎬 منصات الفيديو" class="video-options">
+                            <option value="runway" data-logo="🎬">Runway ML</option>
+                            <option value="pika" data-logo="⚡">Pika Labs</option>
+                            <option value="luma" data-logo="✨">Luma Dream Machine</option>
+                            <option value="stablevideo" data-logo="📹">Stable Video</option>
+                            <option value="kaiber" data-logo="🌊">Kaiber</option>
+                            <option value="grok" data-logo="🦄">Grok AI</option>
+                        </optgroup>
                     </select>
                 </div>
             </div>
         </div>
 
         <button id="generate-button">
-            <i class="fas fa-magic-sparkles"></i> ولِّد البرومبت الآن
+            <i class="fas fa-magic"></i> توليد البرومبتات الاحترافية
             <div class="loader" id="loader" style="display: none;"></div>
         </button>
 
-        <div class="card" id="result-card" style="display: none;">
-            <h2><i class="fas fa-check-circle"></i> برومبت احترافي جاهز للنسخ</h2>
-            <textarea id="result-prompt" readonly></textarea>
-            <button id="copy-button"><i class="fas fa-copy"></i> نسخ البرومبت</button>
-        </div>
+        <div class="result-container" id="result-container" style="display: none;">
+            </div>
     </main>
     
     <script src="script.js"></script>
