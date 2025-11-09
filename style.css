@@ -6,17 +6,17 @@
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* --- ✨ 1. الإعدادات الافتراضية (الإنجليزية LTR) --- */
+/* --- الإعدادات الافتراضية (الإنجليزية LTR) --- */
 body {
     font-family: 'Cairo', sans-serif; 
-    direction: ltr; /* (الافتراضي LTR) */
+    direction: ltr; 
     text-align: left;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     padding: 20px;
     line-height: 1.6;
 }
-/* --- ✨ 2. كلاس "العربية" (RTL) --- */
+/* --- كلاس "العربية" (RTL) --- */
 body.rtl {
     direction: rtl;
     text-align: right;
@@ -25,16 +25,20 @@ body.rtl {
 
 /* --- الهيدر --- */
 .header {
-    text-align: center;
-    margin-bottom: 40px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    position: relative; /* (للسماح بوضع الزر) */
+    padding: 20px;
+    text-align: center;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    position: relative; 
 }
-/* --- ✨ 3. زر تغيير اللغة --- */
+/* --- زر تغيير اللغة --- */
 .lang-toggle {
     position: absolute;
     top: 10px;
-    right: 10px; /* (الافتراضي LTR) */
+    right: 10px; 
     background: rgba(255, 255, 255, 0.2);
     border: 1px solid white;
     color: white;
@@ -43,10 +47,11 @@ body.rtl {
     cursor: pointer;
     font-weight: bold;
     font-family: 'Cairo', sans-serif;
+    z-index: 10; /* (لضمان أنه فوق كل شيء) */
 }
 body.rtl .lang-toggle {
     right: auto;
-    left: 10px; /* (عندما يكون عربي) */
+    left: 10px; 
 }
 .lang-toggle i { margin-right: 5px; }
 body.rtl .lang-toggle i { margin-left: 5px; margin-right: 0; }
@@ -56,30 +61,32 @@ body.rtl .lang-toggle i { margin-left: 5px; margin-right: 0; }
     font-size: 2.5rem;
     margin-bottom: 10px;
     text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    /* --- ✨ 1. (الإصلاح) إضافة "فاصل" علوي لترك مساحة للزر --- */
+    padding-top: 40px; 
 }
-.header h1 i { margin-right: 10px; color: #ffeb3b; } /* (تعديل لـ LTR) */
+.header h1 i { margin-right: 10px; color: #ffeb3b; } 
 body.rtl .header h1 i { margin-left: 10px; margin-right: 0; }
 
 .header p { font-size: 1.2rem; opacity: 0.9; }
 
 /* --- زر الاختيار (صورة/فيديو) --- */
-.toggle-container { display: flex; justify-content: center; margin-bottom: 25px; }
+.toggle-container { display: flex; justify-content: center; margin-top: 25px; }
 .toggle-button {
     flex: 1; padding: 12px; font-size: 1.1em; font-weight: bold;
     border: 2px solid #ffffff; background-color: transparent; color: white;
     cursor: pointer; transition: all 0.3s ease;
 }
-.toggle-button i { margin-right: 8px; } /* (تعديل لـ LTR) */
+.toggle-button i { margin-right: 8px; } 
 body.rtl .toggle-button i { margin-left: 8px; margin-right: 0; }
-.toggle-button:first-of-type { border-top-left-radius: 8px; border-bottom-left-radius: 8px; border-right-width: 1px; } /* (تعديل لـ LTR) */
-.toggle-button:last-of-type { border-top-right-radius: 8px; border-bottom-right-radius: 8px; } /* (تعديل لـ LTR) */
+.toggle-button:first-of-type { border-top-left-radius: 8px; border-bottom-left-radius: 8px; border-right-width: 1px; } 
+.toggle-button:last-of-type { border-top-right-radius: 8px; border-bottom-right-radius: 8px; } 
 body.rtl .toggle-button:first-of-type { border-top-right-radius: 8px; border-bottom-right-radius: 8px; border-left-width: auto; border-right-width: 1px; }
 body.rtl .toggle-button:last-of-type { border-top-left-radius: 8px; border-bottom-left-radius: 8px; border-top-right-radius: 0; border-bottom-right-radius: 0; }
 .toggle-button.active { background-color: white; color: #764ba2; }
 
 /* --- البطاقة الرئيسية --- */
 .card {
-    background: white;
+    background-color: white;
     border-radius: 20px;
     padding: 40px;
     box-shadow: 0 20px 40px rgba(0,0,0,0.1);
@@ -89,8 +96,13 @@ body.rtl .toggle-button:last-of-type { border-top-left-radius: 8px; border-botto
     margin-top: 0; color: #764ba2; border-bottom: 2px solid #f0f2f5;
     padding-bottom: 10px; font-size: 1.6em;
 }
-.card h2 i { margin-right: 10px; color: #ffeb3b; } /* (أيقونة صفراء) (تعديل لـ LTR) */
+.card h2 i { margin-right: 10px; } 
 body.rtl .card h2 i { margin-left: 10px; margin-right: 0; }
+
+/* --- (أيقونة "الفكرة" الصفراء) --- */
+#idea-icon {
+    color: #ffeb3b; 
+}
 
 /* --- الفورم --- */
 .form-grid {
@@ -105,7 +117,7 @@ label {
     display: block; margin-bottom: 8px; font-weight: 600;
     color: var(--dark); font-size: 1.1rem;
 }
-label i { margin-right: 8px; } /* (تعديل لـ LTR) */
+label i { margin-right: 8px; } 
 body.rtl label i { margin-left: 8px; margin-right: 0; }
 textarea, select {
     width: 100%; padding: 15px; border: 2px solid #e2e8f0;
@@ -157,7 +169,7 @@ textarea:focus, select:focus {
 .platform-card {
     background: white; border-radius: 15px; padding: 20px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    border-right: 5px solid #667eea; /* (تعديل لـ LTR) */
+    border-right: 5px solid #667eea; 
     border-left: none;
     transition: transform 0.3s ease;
 }
