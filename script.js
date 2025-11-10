@@ -1,9 +1,9 @@
-// script.js (الإصدار الاحترافي v3.2 - مع "ذاكرة المتصفح" localStorage)
+// script.js (الإصدار الاحترافي v4.0 - دمج Gemini API)
 
-// --- ✨ 1. قاموس الترجمة (كما هو) ---
+// --- 1. قاموس الترجمة (كما هو) ---
 const translations = {
-    // ... (كل قاموس الترجمة يبقى كما هو، لا تغيير هنا) ...
     "en": {
+        // ... (الترجمات الأخرى) ...
         "labelAspectRatio": "Aspect Ratio", 
         "optAr1x1": "1:1 (Square) - Instagram Post",
         "optAr9x16": "9:16 (Portrait) - TikTok/Story",
@@ -47,10 +47,14 @@ const translations = {
         "alertError": "Error generating prompt: ",
         "alertCopied": "✅ Prompt copied successfully!",
         "alertShareError": "Share API is not supported on this browser. Prompt copied instead!", 
+        // --- ✨ (جديد 3.3) --- ترجمة تنبيه التحسين
+        "alertEnhanceIdea": "Please enter an idea to enhance!",
+        "alertEnhanceError": "Error enhancing idea: ",
         "cardResultTitle": "🖼️ Image Platforms",
         "cardResultTitleVideo": "🎬 Video Platforms"
     },
     "ar": {
+        // ... (الترجمات الأخرى) ...
         "labelAspectRatio": "الأبعاد", 
         "optAr1x1": "1:1 (مربع) - انستجرام",
         "optAr9x16": "9:16 (بورتريه) - تيك توك/ستوري",
@@ -93,7 +97,10 @@ const translations = {
         "alertIdea": "الرجاء كتابة الفكرة الأساسية أولاً!",
         "alertError": "حدث خطأ: ",
         "alertCopied": "✅ تم نسخ البرومبت بنجاح!",
-        "alertShareError": "خاصية المشاركة غير مدعومة على هذا المتصفح. تم نسخ البرومبت بدلاً من ذلك!", 
+        "alertShareError": "خاصية المشاركة غير مدعومة على هذا المتصفح. تم نسخ البرومبت بدلاً من ذلك!",
+        // --- ✨ (جديد 3.3) --- ترجمة تنبيه التحسين
+        "alertEnhanceIdea": "الرجاء كتابة فكرة لتحسينها أولاً!",
+        "alertEnhanceError": "حدث خطأ أثناء تحسين الفكرة: ",
         "cardResultTitle": "🖼️ منصات الصور",
         "cardResultTitleVideo": "🎬 منصات الفيديو"
     }
@@ -125,7 +132,7 @@ function setLanguage(lang) {
 
 document.addEventListener("DOMContentLoaded", () => {
     
-    // --- 3. تحديد العناصر (كما هي) ---
+    // --- 3. تحديد العناصر (تمت إضافة زر التحسين) ---
     const ideaInput = document.getElementById("idea-input");
     const styleSelect = document.getElementById("style-select");
     const lightingSelect = document.getElementById("lighting-select");
@@ -134,19 +141,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const platformSelect = document.getElementById("platform-select");
     const typeImageButton = document.getElementById("type-image");
     const typeVideoButton = document.getElementById("type-video");
-    let currentType = "image"; // (سيتم تحديث القيمة من الـ loadState)
+    let currentType = "image"; 
     const generateButton = document.getElementById("generate-button");
     const loader = document.getElementById("loader");
     const resultContainer = document.getElementById("result-container"); 
     const langToggleButton = document.getElementById("lang-toggle");
     const shareSiteButton = document.getElementById("share-site-button"); 
 
+    // --- ✨ (جديد 3.3) --- تحديد عناصر زر التحسين
+    const enhanceButton = document.getElementById("enhance-button");
+    const enhanceIcon = document.getElementById("enhance-icon");
+    const enhanceLoader = document.getElementById("enhance-loader");
+
     const API_ENDPOINT = "/api/generate-prompt"; 
-    
-    // --- ✨ (جديد) 2.1: تعريف مفتاح "ذاكرة المتصفح" ---
+    // --- ✨ (جديد 3.3) --- تحديد نقطة API التحسين
+    const ENHANCE_API_ENDPOINT = "/api/enhance-idea";
+
     const STORAGE_KEY = 'promptStudioState_v1';
 
-    // --- ✨ (جديد) 2.1: دالة حفظ الحالة ---
     function saveState() {
         const state = {
             idea: ideaInput.value,
@@ -160,10 +172,9 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
 
-    // --- ✨ (جديد) 2.1: دالة تحميل الحالة ---
     function loadState() {
         const savedState = localStorage.getItem(STORAGE_KEY);
-        if (!savedState) return; // لا يوجد شيء محفوظ، استخدم الافتراضي
+        if (!savedState) return; 
 
         try {
             const state = JSON.parse(savedState);
@@ -174,9 +185,8 @@ document.addEventListener("DOMContentLoaded", () => {
             compositionSelect.value = state.composition || '';
             aspectRatioSelect.value = state.aspectRatio || '1:1';
             platformSelect.value = state.platform || 'all';
-            currentType = state.type || 'image'; // (مهم) تحميل النوع المحفوظ
+            currentType = state.type || 'image'; 
 
-            // تحديث الأزرار بناءً على النوع المحفوظ
             if (currentType === 'video') {
                 typeVideoButton.classList.add("active");
                 typeImageButton.classList.remove("active");
@@ -187,31 +197,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
         } catch (error) {
             console.error("Failed to parse state from localStorage:", error);
-            localStorage.removeItem(STORAGE_KEY); // تنظيف الذاكرة إذا كانت تالفة
+            localStorage.removeItem(STORAGE_KEY); 
         }
     }
 
-
-    // --- 4. أحداث الأزرار (معدلة لحفظ الحالة) ---
+    // --- 4. أحداث الأزرار (إضافة حدث زر التحسين) ---
     typeImageButton.addEventListener("click", () => {
         currentType = "image";
         typeImageButton.classList.add("active");
         typeVideoButton.classList.remove("active");
         updatePlatformOptions();
-        saveState(); // <-- ✨ (جديد) حفظ الحالة عند التغيير
+        saveState(); 
     });
     typeVideoButton.addEventListener("click", () => {
         currentType = "video";
         typeVideoButton.classList.add("active");
         typeImageButton.classList.remove("active");
         updatePlatformOptions();
-        saveState(); // <-- ✨ (جديد) حفظ الحالة عند التغيير
+        saveState(); 
     });
     langToggleButton.addEventListener("click", () => {
         const newLang = currentLang === 'en' ? 'ar' : 'en';
         setLanguage(newLang);
     });
     shareSiteButton.addEventListener("click", async () => {
+        // ... (دالة المشاركة كما هي) ...
         const shareData = {
             title: translations['en']['headerTitle'], 
             text: translations[currentLang]['headerSubtitle'], 
@@ -225,26 +235,73 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // --- ✨ (جديد 3.3) --- حدث الضغط على زر التحسين
+    enhanceButton.addEventListener("click", async () => {
+        const idea = ideaInput.value.trim();
+        if (!idea) {
+            alert(translations[currentLang]['alertEnhanceIdea']);
+            ideaInput.focus();
+            return;
+        }
+
+        // 1. تفعيل وضع التحميل
+        enhanceButton.disabled = true;
+        enhanceIcon.style.display = "none";
+        enhanceLoader.style.display = "block";
+
+        try {
+            // 2. إرسال الطلب لـ API التحسين
+            const response = await fetch(ENHANCE_API_ENDPOINT, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ idea }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "API connection failed");
+            }
+            
+            const data = await response.json();
+
+            if (data.success && data.enhancedIdea) {
+                // 3. تحديث مربع النص بالفكرة المحسنة
+                ideaInput.value = data.enhancedIdea;
+                saveState(); // حفظ الفكرة الجديدة في الذاكرة
+            } else {
+                throw new Error(data.error || "Invalid response from server");
+            }
+
+        } catch (error) {
+            console.error("Enhancement error:", error);
+            alert(translations[currentLang]['alertEnhanceError'] + error.message);
+        } finally {
+            // 4. إيقاف وضع التحميل
+            enhanceButton.disabled = false;
+            enhanceIcon.style.display = "block";
+            enhanceLoader.style.display = "none";
+        }
+    });
+
+
     function updatePlatformOptions() {
+        // ... (الدالة كما هي) ...
         const imageOptions = platformSelect.querySelectorAll('optgroup[label="🖼️ Image Platforms"], optgroup[label="🖼️ Image Platforms"] > option, optgroup[label="🖼️ منصات الصور"], optgroup[label="🖼️ منصات الصور"] > option');
         const videoOptions = platformSelect.querySelectorAll('optgroup[label="🎬 Video Platforms"], optgroup[label="🎬 Video Platforms"] > option, optgroup[label="🎬 منصات الفيديو"], optgroup[label="🎬 منصات الفيديو"] > option');
         
-        // (ملاحظة: currentType تم تحديثه بالفعل من loadState)
         if (currentType === 'image') {
             imageOptions.forEach(opt => opt.style.display = 'block');
             videoOptions.forEach(opt => opt.style.display = 'none');
-            // التأكد من أن الاختيار الحالي منطقي
             if (platformSelect.value && (platformSelect.value.startsWith('runway') || platformSelect.value.startsWith('pika'))) {
                  platformSelect.value = 'all'; 
-                 saveState(); // <-- ✨ (جديد) حفظ التغيير التلقائي
+                 saveState(); 
             }
         } else {
             imageOptions.forEach(opt => opt.style.display = 'none');
             videoOptions.forEach(opt => opt.style.display = 'block');
-            // التأكد من أن الاختيار الحالي منطقي
             if (platformSelect.value && (platformSelect.value.startsWith('midjourney') || platformSelect.value.startsWith('dalle3'))) {
                  platformSelect.value = 'all';
-                 saveState(); // <-- ✨ (جديد) حفظ التغيير التلقائي
+                 saveState(); 
             }
         }
     }
@@ -339,12 +396,14 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
     }
     window.copyPrompt = (platformId) => {
+        // ... (كما هي) ...
         const promptText = document.getElementById(`prompt-${platformId}`).textContent;
         navigator.clipboard.writeText(promptText).then(() => {
             alert(translations[currentLang]['alertCopied']);
         });
     }
     window.sharePrompt = async (platformId) => {
+        // ... (كما هي) ...
         const promptText = document.getElementById(`prompt-${platformId}`).textContent;
         const shareData = {
             title: `Prompt from ${translations['en']['headerTitle']}`, 
@@ -359,7 +418,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // --- ✨ (جديد) 2.1: ربط حفظ الحالة مع كل تغيير في المدخلات ---
+    // --- 7. ربط حفظ الذاكرة (كما هو) ---
     ideaInput.addEventListener('input', saveState);
     styleSelect.addEventListener('change', saveState);
     lightingSelect.addEventListener('change', saveState);
@@ -368,14 +427,8 @@ document.addEventListener("DOMContentLoaded", () => {
     platformSelect.addEventListener('change', saveState);
 
 
-    // --- 7. التهيئة الأولية (معدلة) ---
-    
-    // (مهم) أولاً: تحميل الحالة المحفوظة (لتحديد currentType)
+    // --- 8. التهيئة الأولية (كما هي) ---
     loadState(); 
-    
-    // ثانيًا: تحديث خيارات المنصات بناءً على النوع الذي تم تحميله
     updatePlatformOptions(); 
-    
-    // ثالثًا: تطبيق الترجمة
     setLanguage(currentLang); 
 });
