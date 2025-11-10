@@ -1,10 +1,10 @@
-// script.js (الإصدار الاحترافي v3.0 - مع الترجمة والمشاركة والأبعاد)
+// script.js (الإصدار الاحترافي v3.2 - مع "ذاكرة المتصفح" localStorage)
 
-// --- ✨ 1. قاموس الترجمة (تمت إضافة "الأبعاد") ---
+// --- ✨ 1. قاموس الترجمة (كما هو) ---
 const translations = {
+    // ... (كل قاموس الترجمة يبقى كما هو، لا تغيير هنا) ...
     "en": {
-        // ... (الترجمات الأخرى)
-        "labelAspectRatio": "Aspect Ratio", // <-- (الجديد)
+        "labelAspectRatio": "Aspect Ratio", 
         "optAr1x1": "1:1 (Square) - Instagram Post",
         "optAr9x16": "9:16 (Portrait) - TikTok/Story",
         "optAr16x9": "16:9 (Landscape) - YouTube",
@@ -51,8 +51,7 @@ const translations = {
         "cardResultTitleVideo": "🎬 Video Platforms"
     },
     "ar": {
-        // ... (الترجمات الأخرى)
-        "labelAspectRatio": "الأبعاد", // <-- (الجديد)
+        "labelAspectRatio": "الأبعاد", 
         "optAr1x1": "1:1 (مربع) - انستجرام",
         "optAr9x16": "9:16 (بورتريه) - تيك توك/ستوري",
         "optAr16x9": "16:9 (عرضي) - يوتيوب",
@@ -126,16 +125,16 @@ function setLanguage(lang) {
 
 document.addEventListener("DOMContentLoaded", () => {
     
-    // --- 3. تحديد العناصر (تمت إضافة "الأبعاد") ---
+    // --- 3. تحديد العناصر (كما هي) ---
     const ideaInput = document.getElementById("idea-input");
     const styleSelect = document.getElementById("style-select");
     const lightingSelect = document.getElementById("lighting-select");
     const compositionSelect = document.getElementById("composition-select");
-    const aspectRatioSelect = document.getElementById("aspect-ratio-select"); // <-- ✨ (الجديد)
+    const aspectRatioSelect = document.getElementById("aspect-ratio-select"); 
     const platformSelect = document.getElementById("platform-select");
     const typeImageButton = document.getElementById("type-image");
     const typeVideoButton = document.getElementById("type-video");
-    let currentType = "image"; 
+    let currentType = "image"; // (سيتم تحديث القيمة من الـ loadState)
     const generateButton = document.getElementById("generate-button");
     const loader = document.getElementById("loader");
     const resultContainer = document.getElementById("result-container"); 
@@ -143,19 +142,70 @@ document.addEventListener("DOMContentLoaded", () => {
     const shareSiteButton = document.getElementById("share-site-button"); 
 
     const API_ENDPOINT = "/api/generate-prompt"; 
+    
+    // --- ✨ (جديد) 2.1: تعريف مفتاح "ذاكرة المتصفح" ---
+    const STORAGE_KEY = 'promptStudioState_v1';
 
-    // --- 4. أحداث الأزرار ---
+    // --- ✨ (جديد) 2.1: دالة حفظ الحالة ---
+    function saveState() {
+        const state = {
+            idea: ideaInput.value,
+            style: styleSelect.value,
+            lighting: lightingSelect.value,
+            composition: compositionSelect.value,
+            aspectRatio: aspectRatioSelect.value,
+            platform: platformSelect.value,
+            type: currentType
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    // --- ✨ (جديد) 2.1: دالة تحميل الحالة ---
+    function loadState() {
+        const savedState = localStorage.getItem(STORAGE_KEY);
+        if (!savedState) return; // لا يوجد شيء محفوظ، استخدم الافتراضي
+
+        try {
+            const state = JSON.parse(savedState);
+            
+            ideaInput.value = state.idea || '';
+            styleSelect.value = state.style || '';
+            lightingSelect.value = state.lighting || '';
+            compositionSelect.value = state.composition || '';
+            aspectRatioSelect.value = state.aspectRatio || '1:1';
+            platformSelect.value = state.platform || 'all';
+            currentType = state.type || 'image'; // (مهم) تحميل النوع المحفوظ
+
+            // تحديث الأزرار بناءً على النوع المحفوظ
+            if (currentType === 'video') {
+                typeVideoButton.classList.add("active");
+                typeImageButton.classList.remove("active");
+            } else {
+                typeImageButton.classList.add("active");
+                typeVideoButton.classList.remove("active");
+            }
+
+        } catch (error) {
+            console.error("Failed to parse state from localStorage:", error);
+            localStorage.removeItem(STORAGE_KEY); // تنظيف الذاكرة إذا كانت تالفة
+        }
+    }
+
+
+    // --- 4. أحداث الأزرار (معدلة لحفظ الحالة) ---
     typeImageButton.addEventListener("click", () => {
         currentType = "image";
         typeImageButton.classList.add("active");
         typeVideoButton.classList.remove("active");
         updatePlatformOptions();
+        saveState(); // <-- ✨ (جديد) حفظ الحالة عند التغيير
     });
     typeVideoButton.addEventListener("click", () => {
         currentType = "video";
         typeVideoButton.classList.add("active");
         typeImageButton.classList.remove("active");
         updatePlatformOptions();
+        saveState(); // <-- ✨ (جديد) حفظ الحالة عند التغيير
     });
     langToggleButton.addEventListener("click", () => {
         const newLang = currentLang === 'en' ? 'ar' : 'en';
@@ -178,28 +228,34 @@ document.addEventListener("DOMContentLoaded", () => {
     function updatePlatformOptions() {
         const imageOptions = platformSelect.querySelectorAll('optgroup[label="🖼️ Image Platforms"], optgroup[label="🖼️ Image Platforms"] > option, optgroup[label="🖼️ منصات الصور"], optgroup[label="🖼️ منصات الصور"] > option');
         const videoOptions = platformSelect.querySelectorAll('optgroup[label="🎬 Video Platforms"], optgroup[label="🎬 Video Platforms"] > option, optgroup[label="🎬 منصات الفيديو"], optgroup[label="🎬 منصات الفيديو"] > option');
+        
+        // (ملاحظة: currentType تم تحديثه بالفعل من loadState)
         if (currentType === 'image') {
             imageOptions.forEach(opt => opt.style.display = 'block');
             videoOptions.forEach(opt => opt.style.display = 'none');
+            // التأكد من أن الاختيار الحالي منطقي
             if (platformSelect.value && (platformSelect.value.startsWith('runway') || platformSelect.value.startsWith('pika'))) {
                  platformSelect.value = 'all'; 
+                 saveState(); // <-- ✨ (جديد) حفظ التغيير التلقائي
             }
         } else {
             imageOptions.forEach(opt => opt.style.display = 'none');
             videoOptions.forEach(opt => opt.style.display = 'block');
+            // التأكد من أن الاختيار الحالي منطقي
             if (platformSelect.value && (platformSelect.value.startsWith('midjourney') || platformSelect.value.startsWith('dalle3'))) {
                  platformSelect.value = 'all';
+                 saveState(); // <-- ✨ (جديد) حفظ التغيير التلقائي
             }
         }
     }
 
-    // --- 5. حدث التوليد الرئيسي (تمت إضافة "الأبعاد") ---
+    // --- 5. حدث التوليد الرئيسي (كما هو) ---
     generateButton.addEventListener("click", async () => {
         const idea = ideaInput.value.trim();
         const style = styleSelect.value;
         const lighting = lightingSelect.value;
         const composition = compositionSelect.value;
-        const aspectRatio = aspectRatioSelect.value; // <-- ✨ (الجديد)
+        const aspectRatio = aspectRatioSelect.value; 
         const platform = platformSelect.value;
 
         if (!idea) {
@@ -224,7 +280,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     style, 
                     lighting, 
                     composition, 
-                    aspectRatio, // <-- ✨ (الجديد)
+                    aspectRatio,
                     platform 
                 }),
             });
@@ -257,7 +313,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // (دوال بناء البطاقات والنسخ والمشاركة تبقى كما هي)
+    // --- 6. دوال بناء البطاقات (كما هي) ---
     window.createPlatformCard = (platformId, name, logo, url, promptText) => {
         return `
             <div class="platform-card" data-platform="${platformId}">
@@ -303,7 +359,23 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // --- 6. التهيئة الأولية ---
-    updatePlatformOptions();
+    // --- ✨ (جديد) 2.1: ربط حفظ الحالة مع كل تغيير في المدخلات ---
+    ideaInput.addEventListener('input', saveState);
+    styleSelect.addEventListener('change', saveState);
+    lightingSelect.addEventListener('change', saveState);
+    compositionSelect.addEventListener('change', saveState);
+    aspectRatioSelect.addEventListener('change', saveState);
+    platformSelect.addEventListener('change', saveState);
+
+
+    // --- 7. التهيئة الأولية (معدلة) ---
+    
+    // (مهم) أولاً: تحميل الحالة المحفوظة (لتحديد currentType)
+    loadState(); 
+    
+    // ثانيًا: تحديث خيارات المنصات بناءً على النوع الذي تم تحميله
+    updatePlatformOptions(); 
+    
+    // ثالثًا: تطبيق الترجمة
     setLanguage(currentLang); 
 });
