@@ -1,21 +1,15 @@
-// script.js (الإصدار الاحترافي v4.0 - دمج Gemini API)
+// script.js (الإصدار الاحترافي v4.1 - متوافق مع HTML/CSS الجديد)
 
-// --- 1. قاموس الترجمة ---
+// --- 1. قاموس الترجمة (محدّث v4.1) ---
 const translations = {
     "en": {
-        "labelAspectRatio": "Aspect Ratio", 
-        "optAr1x1": "1:1 (Square) - Instagram Post",
-        "optAr9x16": "9:16 (Portrait) - TikTok/Story",
-        "optAr16x9": "16:9 (Landscape) - YouTube",
-        "optAr4x5": "4:5 (Tall) - Instagram Portrait",
-        "optAr4x3": "4:3 (Standard) - Photo",
         "langBtn": "العربية",
         "headerTitle": "✨️ Prompt AI pro ✨️",
         "year": "2025",
         "headerSubtitle": "Turn your ideas into professional prompts for all AI platforms",
         "btnImage": "Image",
         "btnVideo": "Video",
-        "btnShareSite": "Share Site", 
+        "btnShareSite": "Share Site",
         "card1Title": "1. Describe Your Creative Idea",
         "placeholderIdea": "Example: A cat wearing a spacesuit, sitting on the moon...",
         "card2Title": "2. Content Settings",
@@ -36,67 +30,75 @@ const translations = {
         "optWideShot": "Wide Shot",
         "optAerialView": "Aerial View",
         "optDynamicAngle": "Dynamic Angle",
+        "labelAspectRatio": "Aspect Ratio",
+        "optAr1x1": "1:1 (Square)",
+        "optAr9x16": "9:16 (Portrait)",
+        "optAr16x9": "16:9 (Landscape)",
+        "optAr4x5": "4:5 (Tall)",
+        "optAr4x3": "4:3 (Standard)",
         "labelPlatform": "Select Platform",
         "optAllPlatforms": "All Platforms",
         "btnGenerate": "Generate Professional Prompts",
+        "btnEnhance": "Enhance Idea", // (جديد)
         "btnCopy": "Copy",
         "btnVisit": "Visit Site",
         "btnShare": "Share", 
         "alertIdea": "Please enter your idea first!",
-        "alertError": "Error generating prompt: ",
-        "alertCopied": "✅ Prompt copied successfully!",
-        "alertShareError": "Share API is not supported on this browser. Prompt copied instead!", 
         "alertEnhanceIdea": "Please enter an idea to enhance!",
+        "alertError": "Error generating prompt: ",
         "alertEnhanceError": "Error enhancing idea: ",
+        "alertCopied": "✅ Prompt copied successfully!",
+        "alertShareError": "Share API not supported. Prompt copied instead!", 
         "cardResultTitle": "🖼️ Image Platforms",
         "cardResultTitleVideo": "🎬 Video Platforms"
     },
     "ar": {
-        "labelAspectRatio": "الأبعاد", 
-        "optAr1x1": "1:1 (مربع) - انستجرام",
-        "optAr9x16": "9:16 (بورتريه) - تيك توك/ستوري",
-        "optAr16x9": "16:9 (عرضي) - يوتيوب",
-        "optAr4x5": "4:5 (طولي) - انستجرام بورتريه",
-        "optAr4x3": "4:3 (قياسي) - صورة",
         "langBtn": "English",
         "headerTitle": "✨️ Prompt AI pro ✨️",
         "year": "2025",
         "headerSubtitle": "حوّل أفكارك إلى برومبتات احترافية لجميع منصات الذكاء الاصطناعي",
         "btnImage": "إنشاء الصور",
         "btnVideo": "إنشاء الفيديوهات",
-        "btnShareSite": "مشاركة الموقع", 
+        "btnShareSite": "مشاركة الموقع",
         "card1Title": "1. اكتب فكرتك الإبداعية",
         "placeholderIdea": "مثال: قطة ترتدي بدلة فضاء وتسبح في المجرة...",
         "card2Title": "2. إعدادات المحتوى",
         "labelStyle": "النمط الفني",
         "optDefault": "(افتراضي: واقعي)",
-        "optRealistic": "واقعي (Realistic)",
-        "optCinematic": "سينمائي (Cinematic)",
-        "optAnime": "أنمي (Anime)",
-        "optDigitalArt": "فن رقمي (Digital Art)",
-        "optFantasy": "خيالي (Fantasy)",
+        "optRealistic": "واقعي",
+        "optCinematic": "سينمائي",
+        "optAnime": "أنمي",
+        "optDigitalArt": "فن رقمي",
+        "optFantasy": "خيالي",
         "labelLighting": "الإضاءة",
-        "optNatural": "طبيعية (Natural)",
-        "optDramatic": "درامية (Dramatic)",
-        "optSoft": "ناعمة (Soft)",
-        "optNeon": "نيون (Neon)",
+        "optNatural": "طبيعية",
+        "optDramatic": "درامية",
+        "optSoft": "ناعمة",
+        "optNeon": "نيون",
         "labelComposition": "التكوين",
-        "optCloseup": "لقطة قريبة (Close-up)",
-        "optWideShot": "لقطة واسعة (Wide Shot)",
-        "optAerialView": "منظر جوي (Aerial View)",
-        "optDynamicAngle": "زاوية ديناميكية (Dynamic Angle)",
+        "optCloseup": "لقطة قريبة",
+        "optWideShot": "لقطة واسعة",
+        "optAerialView": "منظر جوي",
+        "optDynamicAngle": "زاوية ديناميكية",
+        "labelAspectRatio": "الأبعاد",
+        "optAr1x1": "1:1 (مربع)",
+        "optAr9x16": "9:16 (بورتريه)",
+        "optAr16x9": "16:9 (عرضي)",
+        "optAr4x5": "4:5 (طولي)",
+        "optAr4x3": "4:3 (قياسي)",
         "labelPlatform": "اختر المنصة",
         "optAllPlatforms": "جميع المنصات",
         "btnGenerate": "توليد البرومبتات الاحترافية",
+        "btnEnhance": "تحسين الفكرة", // (جديد)
         "btnCopy": "نسخ",
         "btnVisit": "زيارة الموقع",
         "btnShare": "مشاركة", 
         "alertIdea": "الرجاء كتابة الفكرة الأساسية أولاً!",
-        "alertError": "حدث خطأ: ",
-        "alertCopied": "✅ تم نسخ البرومبت بنجاح!",
-        "alertShareError": "خاصية المشاركة غير مدعومة على هذا المتصفح. تم نسخ البرومبت بدلاً من ذلك!",
         "alertEnhanceIdea": "الرجاء كتابة فكرة لتحسينها أولاً!",
+        "alertError": "حدث خطأ: ",
         "alertEnhanceError": "حدث خطأ أثناء تحسين الفكرة: ",
+        "alertCopied": "✅ تم نسخ البرومبت بنجاح!",
+        "alertShareError": "خاصية المشاركة غير مدعومة. تم نسخ البرومبت بدلاً من ذلك!", 
         "cardResultTitle": "🖼️ منصات الصور",
         "cardResultTitleVideo": "🎬 منصات الفيديو"
     }
@@ -115,20 +117,32 @@ function setLanguage(lang) {
         document.documentElement.dir = 'ltr';
         document.body.classList.remove('rtl');
     }
+    
+    // (محدّث v4.1: ليتعامل مع الـ span داخل الزر)
     document.querySelectorAll('[data-i18n]').forEach(element => {
         const key = element.getAttribute('data-i18n');
-        if (translations[lang][key]) element.textContent = translations[lang][key];
+        if (translations[lang][key]) {
+            // إذا كان العنصر هو زر ويحتوي على span، غيّر الـ span
+            const span = element.querySelector('span');
+            if (span && (key === 'btnGenerate' || key === 'btnEnhance' || key === 'btnShareSite' || key === 'btnImage' || key === 'btnVideo')) {
+                span.textContent = translations[lang][key];
+            } else {
+                element.textContent = translations[lang][key];
+            }
+        }
     });
+
     document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
         const key = element.getAttribute('data-i18n-placeholder');
         if (translations[lang][key]) element.placeholder = translations[lang][key];
     });
+    
     document.getElementById('lang-toggle-text').textContent = translations[lang]['langBtn'];
 }
 
 document.addEventListener("DOMContentLoaded", () => {
     
-    // --- 3. تحديد العناصر ---
+    // --- 3. تحديد العناصر (محدّث v4.1) ---
     const ideaInput = document.getElementById("idea-input");
     const styleSelect = document.getElementById("style-select");
     const lightingSelect = document.getElementById("lighting-select");
@@ -138,22 +152,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const typeImageButton = document.getElementById("type-image");
     const typeVideoButton = document.getElementById("type-video");
     let currentType = "image"; 
-    const generateButton = document.getElementById("generate-button");
-    const loader = document.getElementById("loader");
     const resultContainer = document.getElementById("result-container"); 
     const langToggleButton = document.getElementById("lang-toggle");
     const shareSiteButton = document.getElementById("share-site-button"); 
 
-    // --- تحديد عناصر زر التحسين ---
+    // (تحديد عناصر الأزرار الجديدة)
+    const generateButton = document.getElementById("generate-button");
+    const generateIcon = generateButton.querySelector("i");
+    const generateText = generateButton.querySelector("span");
+    const generateLoader = document.getElementById("generate-loader");
+
     const enhanceButton = document.getElementById("enhance-button");
-    const enhanceIcon = document.getElementById("enhance-icon");
+    const enhanceIcon = enhanceButton.querySelector("i");
+    const enhanceText = enhanceButton.querySelector("span");
     const enhanceLoader = document.getElementById("enhance-loader");
 
     const API_ENDPOINT = "/api/generate-prompt"; 
     const ENHANCE_API_ENDPOINT = "/api/enhance-idea";
-
     const STORAGE_KEY = 'promptStudioState_v1';
 
+    // --- (دوال حفظ وتحميل الحالة - معدّلة v4.1) ---
     function saveState() {
         const state = {
             idea: ideaInput.value,
@@ -166,18 +184,15 @@ document.addEventListener("DOMContentLoaded", () => {
         };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
-
     function loadState() {
         const savedState = localStorage.getItem(STORAGE_KEY);
         if (!savedState) return; 
-
         try {
             const state = JSON.parse(savedState);
-            
             ideaInput.value = state.idea || '';
-            styleSelect.value = state.style || '';
-            lightingSelect.value = state.lighting || '';
-            compositionSelect.value = state.composition || '';
+            styleSelect.value = state.style || 'default'; // (قيمة افتراضية جديدة)
+            lightingSelect.value = state.lighting || 'natural'; // (قيمة افتراضية جديدة)
+            compositionSelect.value = state.composition || 'closeup'; // (قيمة افتراضية جديدة)
             aspectRatioSelect.value = state.aspectRatio || '1:1';
             platformSelect.value = state.platform || 'all';
             currentType = state.type || 'image'; 
@@ -189,9 +204,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 typeImageButton.classList.add("active");
                 typeVideoButton.classList.remove("active");
             }
-
         } catch (error) {
-            console.error("Failed to parse state from localStorage:", error);
+            console.error("Failed to load state:", error);
             localStorage.removeItem(STORAGE_KEY); 
         }
     }
@@ -222,14 +236,14 @@ document.addEventListener("DOMContentLoaded", () => {
             url: window.location.href 
         };
         if (navigator.share) {
-            try { await navigator.share(shareData); } catch (err) { console.error("Share error:", err); }
+            try { await navigator.share(shareData); } catch (err) {}
         } else {
             navigator.clipboard.writeText(window.location.href);
             alert(translations[currentLang]['alertShareError']);
         }
     });
 
-    // --- حدث الضغط على زر التحسين ---
+    // --- 5. حدث زر تحسين الفكرة (معدّل v4.1) ---
     enhanceButton.addEventListener("click", async () => {
         const idea = ideaInput.value.trim();
         if (!idea) {
@@ -238,85 +252,54 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // 1. تفعيل وضع التحميل
+        // (تفعيل الـ Loader الجديد)
         enhanceButton.disabled = true;
-        enhanceIcon.style.display = "none";
-        enhanceLoader.style.display = "block";
+        enhanceIcon.style.display = 'none';
+        if (enhanceText) enhanceText.style.display = 'none'; // (التأكد من وجود النص)
+        enhanceLoader.style.display = 'block';
 
         try {
-            // 2. إرسال الطلب لـ API التحسين
             const response = await fetch(ENHANCE_API_ENDPOINT, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ idea }),
             });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || "API connection failed");
-            }
-            
             const data = await response.json();
+            if (!response.ok) throw new Error(data.error || "API connection failed");
 
             if (data.success && data.enhancedIdea) {
-                // 3. تحديث مربع النص بالفكرة المحسنة
                 ideaInput.value = data.enhancedIdea;
-                saveState(); // حفظ الفكرة الجديدة في الذاكرة
+                saveState(); // حفظ الفكرة الجديدة
             } else {
-                throw new Error(data.error || "Invalid response from server");
+                throw new Error(data.error || "Invalid response");
             }
-
         } catch (error) {
             console.error("Enhancement error:", error);
             alert(translations[currentLang]['alertEnhanceError'] + error.message);
         } finally {
-            // 4. إيقاف وضع التحميل
+            // (إيقاف الـ Loader الجديد)
             enhanceButton.disabled = false;
-            enhanceIcon.style.display = "block";
-            enhanceLoader.style.display = "none";
+            enhanceIcon.style.display = 'block';
+            if (enhanceText) enhanceText.style.display = 'block';
+            enhanceLoader.style.display = 'none';
         }
     });
 
-
-    function updatePlatformOptions() {
-        const imageOptions = platformSelect.querySelectorAll('optgroup[label="🖼️ Image Platforms"], optgroup[label="🖼️ Image Platforms"] > option, optgroup[label="🖼️ منصات الصور"], optgroup[label="🖼️ منصات الصور"] > option');
-        const videoOptions = platformSelect.querySelectorAll('optgroup[label="🎬 Video Platforms"], optgroup[label="🎬 Video Platforms"] > option, optgroup[label="🎬 منصات الفيديو"], optgroup[label="🎬 منصات الفيديو"] > option');
-        
-        if (currentType === 'image') {
-            imageOptions.forEach(opt => opt.style.display = 'block');
-            videoOptions.forEach(opt => opt.style.display = 'none');
-            if (platformSelect.value && (platformSelect.value.startsWith('runway') || platformSelect.value.startsWith('pika'))) {
-                 platformSelect.value = 'all'; 
-                 saveState(); 
-            }
-        } else {
-            imageOptions.forEach(opt => opt.style.display = 'none');
-            videoOptions.forEach(opt => opt.style.display = 'block');
-            if (platformSelect.value && (platformSelect.value.startsWith('midjourney') || platformSelect.value.startsWith('dalle3'))) {
-                 platformSelect.value = 'all';
-                 saveState(); 
-            }
-        }
-    }
-
-    // --- 5. حدث التوليد الرئيسي ---
+    // --- 6. حدث زر التوليد الرئيسي (معدّل v4.1) ---
     generateButton.addEventListener("click", async () => {
         const idea = ideaInput.value.trim();
-        const style = styleSelect.value;
-        const lighting = lightingSelect.value;
-        const composition = compositionSelect.value;
-        const aspectRatio = aspectRatioSelect.value; 
-        const platform = platformSelect.value;
-
         if (!idea) {
             alert(translations[currentLang]['alertIdea']);
             ideaInput.focus();
             return;
         }
-
+        
+        // (تفعيل الـ Loader الجديد)
         generateButton.disabled = true;
-        loader.style.display = "block";
-        generateButton.querySelector("i").style.display = "none";
+        generateIcon.style.display = 'none';
+        if (generateText) generateText.style.display = 'none';
+        generateLoader.style.display = 'block';
+        
         resultContainer.style.display = "none"; 
         resultContainer.innerHTML = ''; 
 
@@ -327,19 +310,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify({ 
                     idea, 
                     type: currentType, 
-                    style, 
-                    lighting, 
-                    composition, 
-                    aspectRatio,
-                    platform 
+                    style: styleSelect.value, 
+                    lighting: lightingSelect.value, 
+                    composition: compositionSelect.value, 
+                    aspectRatio: aspectRatioSelect.value,
+                    platform: platformSelect.value 
                 }),
             });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || "API connection failed");
-            }
             const data = await response.json();
+            if (!response.ok) throw new Error(data.error || "API connection failed");
 
             if (data.success && data.prompts) {
                 const titleKey = currentType === 'video' ? 'cardResultTitleVideo' : 'cardResultTitle';
@@ -351,20 +330,45 @@ document.addEventListener("DOMContentLoaded", () => {
                 resultContainer.style.display = "grid"; 
                 resultContainer.scrollIntoView({ behavior: 'smooth' });
             } else {
-                throw new Error(data.error || "Invalid response from server");
+                throw new Error(data.error || "Invalid response");
             }
         } catch (error) {
             console.error("Generation error:", error);
             alert(translations[currentLang]['alertError'] + error.message);
         } finally {
+            // (إيقاف الـ Loader الجديد)
             generateButton.disabled = false;
-            loader.style.display = "none";
-            generateButton.querySelector("i").style.display = "inline-block";
+            generateIcon.style.display = 'block';
+            if (generateText) generateText.style.display = 'block';
+            generateLoader.style.display = 'none';
         }
     });
 
-    // --- 6. دوال بناء البطاقات ---
+    // --- 7. دوال مساعدة (معدلة v4.1) ---
+    function updatePlatformOptions() {
+        // (تحديث القائمة لتطابق HTML الجديد)
+        const imageOptions = platformSelect.querySelectorAll('optgroup[label="🖼️ Image Platforms"], optgroup[label="🖼️ Image Platforms"] > option');
+        const videoOptions = platformSelect.querySelectorAll('optgroup[label="🎬 Video Platforms"], optgroup[label="🎬 Video Platforms"] > option');
+        
+        if (currentType === 'image') {
+            imageOptions.forEach(opt => opt.style.display = 'block');
+            videoOptions.forEach(opt => opt.style.display = 'none');
+            // (تحديث التحقق من القيم الجديدة)
+            if (platformSelect.value && (platformSelect.value === 'runway' || platformSelect.value === 'pika')) {
+                 platformSelect.value = 'all'; 
+                 saveState(); 
+            }
+        } else {
+            imageOptions.forEach(opt => opt.style.display = 'none');
+            videoOptions.forEach(opt => opt.style.display = 'block');
+            if (platformSelect.value && (platformSelect.value !== 'runway' && platformSelect.value !== 'pika' && platformSelect.value !== 'all')) {
+                 platformSelect.value = 'all';
+                 saveState(); 
+            }
+        }
+    }
     window.createPlatformCard = (platformId, name, logo, url, promptText) => {
+        // (الكود كما هو - سليم)
         return `
             <div class="platform-card" data-platform="${platformId}">
                 <div class="platform-header">
@@ -402,14 +406,14 @@ document.addEventListener("DOMContentLoaded", () => {
             url: window.location.href 
         };
         if (navigator.share) {
-            try { await navigator.share(shareData); } catch (err) { console.error("Share error:", err); }
+            try { await navigator.share(shareData); } catch (err) {}
         } else {
             copyPrompt(platformId);
             alert(translations[currentLang]['alertShareError']);
         }
     }
 
-    // --- 7. ربط حفظ الذاكرة ---
+    // --- 8. ربط حفظ الذاكرة ---
     ideaInput.addEventListener('input', saveState);
     styleSelect.addEventListener('change', saveState);
     lightingSelect.addEventListener('change', saveState);
@@ -417,8 +421,7 @@ document.addEventListener("DOMContentLoaded", () => {
     aspectRatioSelect.addEventListener('change', saveState);
     platformSelect.addEventListener('change', saveState);
 
-
-    // --- 8. التهيئة الأولية ---
+    // --- 9. التهيئة الأولية ---
     loadState(); 
     updatePlatformOptions(); 
     setLanguage(currentLang); 
