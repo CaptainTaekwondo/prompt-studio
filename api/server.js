@@ -1,23 +1,16 @@
-// server.js (الإصدار النهائي v5.4 - دمج Auto Model مع Bug Fix)
+// server.js (الإصدار النهائي v5.5 - السرعة أولاً: Flan T5-Small)
+
 const express = require("express");
 const cors = require("cors");
-// (لا نحتاج node-fetch لأن Vercel يدعمه)
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// === إعدادات Hugging Face Router ===
-const HF_API_URL = "https://router.huggingface.co";
+// === إعدادات واجهة Hugging Face (الموديل السريع) ===
+const HF_API_URL = "https://api-inference.huggingface.co/models/google/flan-t5-small"; // ✨ (موديل سريع ومضمون)
 const HF_TOKEN = process.env.HF_TOKEN;
 
-// قائمة النماذج الموثوقة (يرتبها حسب الأفضلية)
-const MODEL_PRIORITY = [
-  "meta-llama/Meta-Llama-3-8B-Instruct",
-  "mistralai/Mixtral-8x7B-Instruct-v0.1",
-  "google/gemma-2b-it",
-  "tiiuae/falcon-7b-instruct"
-];
 
 // === قواميس الأنماط (كما هي) ===
 const styleMap = {
@@ -128,68 +121,44 @@ app.post("/api/generate-prompt", (req, res) => {
   }
 });
 
-// === تحسين الفكرة (Auto Model Detection + Bug Fix) ===
+// === تحسين الفكرة (النسخة السريعة) ===
 app.post("/api/enhance-idea", async (req, res) => {
   try {
     const { idea } = req.body;
     if (!idea) return res.status(400).json({ error: "Idea is required" });
     if (!HF_TOKEN) return res.status(500).json({ error: "HF_TOKEN missing" });
 
-    // نحاول أول نموذج، وإذا فشل ننتقل للتالي
-    for (const model of MODEL_PRIORITY) {
-      try {
-        const response = await fetch(`${HF_API_URL}/models/${model}`, { // (الرابط الصحيح)
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${HF_TOKEN}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            inputs: `You are a creative assistant. Enhance this idea in a cinematic and detailed way:\n"${idea}"`,
-            parameters: { max_new_tokens: 120, temperature: 0.8 },
-          }),
-        });
+    const response = await fetch(HF_API_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${HF_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        inputs: `Enhance this idea into a detailed description:\n"${idea}"\nEnhanced version:`,
+        parameters: { max_new_tokens: 100, temperature: 0.7 },
+      }),
+    });
 
-        // ✨ (Bug Fix: قراءة النص أولاً لمنع خطأ JSON)
-        const text = await response.text(); 
-        
-        // التحقق من حالة الرد
-        if (response.status === 503) {
-            throw new Error(`Model ${model} is loading. Please try again in 20 seconds.`);
-        }
-        if (!response.ok) {
-            throw new Error(`Model ${model} failed: ${text}`);
-        }
-
-        // محاولة تحليل الرد كـ JSON
-        const data = JSON.parse(text); 
-        
-        // استخراج الإجابة
-        const enhancedIdea = data[0]?.generated_text;
-
-        if (enhancedIdea) {
-          console.log(`✅ Model used: ${model}`);
-          // نرد بنجاح ونوقف الحلقة
-          return res.json({ success: true, model, enhancedIdea: enhancedIdea.trim() });
-        }
-
-      } catch (err) {
-        // إذا فشل أي موديل، نسجل الخطأ وننتقل للتالي
-        console.warn(`⚠️ Model ${model} unavailable, trying next... Error: ${err.message}`);
-        // إذا كان الخطأ هو نقص في الرمز نوقف المحاولة
-        if (err.message.includes('API token is invalid')) {
-            throw new Error('Hugging Face API Token is invalid or has incorrect permissions.');
-        }
-        continue;
-      }
+    const text = await response.text(); 
+    
+    if (!response.ok) {
+        throw new Error(`API Error (${response.status}): ${text}`);
     }
 
-    // إذا انتهت الحلقة ولم ينجح أي موديل
-    throw new Error("All high-quality models failed or are currently unavailable.");
+    const data = JSON.parse(text); 
+    
+    // نموذج Flan T5 يرد أحيانًا بكلمة واحدة أو جملة بسيطة، لكنه سريع.
+    const enhancedIdea = data[0]?.generated_text?.trim() || idea;
+
+    if (enhancedIdea && enhancedIdea !== idea) {
+        return res.json({ success: true, enhancedIdea });
+    }
+
+    throw new Error("Enhancement failed, model returned the original idea.");
 
   } catch (error) {
     console.error("Error enhancing idea:", error);
-    // إرجاع رسالة خطأ واضحة للمستخدم
     res.status(500).json({ success: false, error: "Failed to enhance idea: " + error.message });
   }
 });
