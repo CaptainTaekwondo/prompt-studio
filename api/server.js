@@ -1,4 +1,4 @@
-// server.js (الإصدار الاحترافي v4.4 - إصلاح Gemini + إضافة كل المنصات)
+// server.js (الإصدار الاحترافي v4.5 - محاولة الموديل الأحدث)
 const express = require('express');
 const cors = require('cors');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
@@ -14,7 +14,7 @@ if (process.env.GEMINI_API_KEY) {
     console.warn("GEMINI_API_KEY is not set in environment variables.");
 }
 
-// --- ✨ (v4.4) قواميس الترجمة (كما هي) ---
+// --- قواميس الترجمة (كما هي) ---
 const styleMap = {
     'default': 'realistic', 'realistic': 'realistic', 'cinematic': 'cinematic',
     'anime': 'anime', 'digital': 'digital art', 'fantasy': 'fantasy'
@@ -28,9 +28,8 @@ const compositionMap = {
     'aerial': 'aerial view', 'dynamic': 'dynamic angle'
 };
 
-// --- ✨ (v4.4) مكتبة المنصات الكاملة ---
+// --- مكتبة المنصات (كما هي v4.4) ---
 const platformsData = {
-    // 🖼️ منصات الصور
     'midjourney': {
         name: 'Midjourney', logo: '🎨', url: 'https://www.midjourney.com',
         prompt: (idea, style, lighting, composition, aspectRatio) => 
@@ -61,8 +60,6 @@ const platformsData = {
         prompt: (idea, style, lighting, composition, aspectRatio) => 
             `Generate a vivid image of: ${idea}, ${style} style, ${lighting}, ${composition}. Aspect Ratio ${aspectRatio || '1:1'}.`
     },
-    
-    // 🎬 منصات الفيديو
     'runway': {
         name: 'Runway', logo: '🎬', url: 'https://runwayml.com',
         prompt: (idea, style, lighting, composition, aspectRatio) => 
@@ -78,14 +75,14 @@ const platformsData = {
         prompt: (idea, style, lighting, composition, aspectRatio) => 
             `Cinematic video of ${idea} with ${style} visual style, ${lighting}, and ${composition} camera work. Aspect Ratio ${aspectRatio || '16:9'}. High motion consistency, 4K.`
     },
-    'grok-video': { // (استخدمنا اسم مختلف لتمييزه)
+    'grok-video': {
         name: 'Grok AI (Video)', logo: '🦄', url: 'https://x.ai/grok',
         prompt: (idea, style, lighting, composition, aspectRatio) => 
             `Generate a vivid video of: ${idea}, ${style} style, ${lighting}, ${composition} camera movement. Aspect Ratio ${aspectRatio || '16:9'}.`
     }
 };
 
-// --- نقطة API الرئيسية (المحرك الثابت) ---
+// --- نقطة API الرئيسية (كما هي) ---
 app.post('/api/generate-prompt', (req, res) => {
     try {
         const { idea, type, style, lighting, composition, aspectRatio, platform } = req.body;
@@ -95,7 +92,6 @@ app.post('/api/generate-prompt', (req, res) => {
         const translatedLighting = lightingMap[lighting] || 'natural lighting';
         const translatedComposition = compositionMap[composition] || 'medium shot';
 
-        // --- ✨ (v4.4) القوائم الكاملة ---
         const imagePlatforms = ['midjourney', 'dalle3', 'stablediffusion', 'leonardo', 'gemini', 'grok'];
         const videoPlatforms = ['runway', 'pika', 'luma', 'grok-video'];
         
@@ -134,8 +130,8 @@ app.post('/api/enhance-idea', async (req, res) => {
         const { idea } = req.body;
         if (!idea) return res.status(400).json({ error: 'Idea is required' });
 
-        // --- ✨ (v4.4) هذا هو الإصلاح النهائي لمشكلة 404 ---
-        const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" }); 
+        // --- ✨ (هذا هو السطر الذي تم تغييره v4.5) ---
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" }); 
         // --- (نهاية التغيير) ---
 
         const systemPrompt = `أنت خبير في كتابة البرومبتات للذكاء الاصطناعي التوليدي. مهمتك هي أخذ فكرة بسيطة من المستخدم وتحويلها إلى وصف غني بالتفاصيل، إبداعي، وسينمائي. لا تضف أي مقدمات أو خواتيم. فقط أعد الوصف المحسّن مباشرة. مثال: المستخدم: قطة ترتدي قبعة. أنت: قطة فارسية رمادية جميلة ترتدي قبعة مخملية حمراء صغيرة، تجلس بفخر على كرسي ملكي قديم.`;
