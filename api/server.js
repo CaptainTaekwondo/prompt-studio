@@ -1,4 +1,4 @@
-// server.js (الإصدار v5.9 - الترجمة والتحسين الأمثل)
+// server.js (الإصدار v6.0 - إصلاح Bug Matho + الترجمة + السرعة)
 
 const express = require("express");
 const cors = require("cors");
@@ -23,7 +23,8 @@ function localEnhancement(idea) {
     "professional photography, perfect lighting, ultra detailed",
     "award winning composition, visually stunning, detailed background"
   ];
-  const randomEnhancement = enhancements[Math.floor(Matho.random() * enhancements.length)];
+  // ✨ (إصلاح Bug Matho)
+  const randomEnhancement = enhancements[Math.floor(Math.random() * enhancements.length)]; 
   return `${idea}, ${randomEnhancement}`;
 }
 
@@ -44,10 +45,8 @@ async function translateArabicToEnglish(text) {
         if (response.ok && data && data[0] && data[0].translation_text) {
             return data[0].translation_text;
         }
-        // في حالة فشل الترجمة (لأن النموذج يحمل)، نرجع النص الأصلي
         return text; 
     } catch (error) {
-        // في حالة وجود خطأ في الاتصال، نرجع النص الأصلي
         return text; 
     }
 }
@@ -102,19 +101,15 @@ const platformsData = {
   }
 };
 
-// === توليد البرومبتات (معدل للترجمة) ===
+// === توليد البرومبتات (كما هي) ===
 app.post("/api/generate-prompt", async (req, res) => {
   try {
     const { idea, type, style, lighting, composition, aspectRatio, platform } = req.body;
     if (!idea) return res.status(400).json({ error: "Idea is required" });
 
-    // 1. ✨ نعتبر أن النص في هذه المرحلة هو النص النهائي المحسّن (سواء كان إنجليزيًا أو عربيًا)
-    const finalIdea = idea; 
+    // 1. الترجمة أولاً
+    const translatedIdea = await translateArabicToEnglish(idea); 
 
-    // 2. ✨ الترجمة لغرض توليد البرومبتات (مهم للنماذج الأجنبية)
-    const translatedIdea = await translateArabicToEnglish(finalIdea);
-    
-    // 3. تطبيق القواميس
     const translatedStyle = styleMap[style] || "realistic";
     const translatedLighting = lightingMap[lighting] || "natural lighting";
     const translatedComposition = compositionMap[composition] || "medium shot";
@@ -134,7 +129,6 @@ app.post("/api/generate-prompt", async (req, res) => {
       name: platformsData[p].name,
       logo: platformsData[p].logo,
       url: platformsData[p].url,
-      // 4. نمرر النص المُترجم للمنصات الأجنبية
       prompt: platformsData[p].prompt(
         translatedIdea, 
         translatedStyle,
@@ -151,20 +145,19 @@ app.post("/api/generate-prompt", async (req, res) => {
   }
 });
 
-// === تحسين الفكرة (عرض الإنجليزية المحسنة) ===
+// === تحسين الفكرة (النسخة السريعة) ===
 app.post("/api/enhance-idea", async (req, res) => {
   try {
     const { idea } = req.body;
     if (!idea) return res.status(400).json({ error: "Idea is required" });
     if (!HF_TOKEN) {
         const enhancedIdea = localEnhancement(idea);
-        return res.json({ success: true, enhancedIdea: enhancedIdea, note: "Used local fallback" });
+        return res.json({ success: true, enhancedIdea, note: "Used local fallback" });
     }
 
-    // 1. ✨ الترجمة أولاً (نحول النص العربي إلى إنجليزي)
+    // 1. الترجمة أولاً
     const translatedIdea = await translateArabicToEnglish(idea); 
     
-    // 2. اتصال بالنموذج لتحسين النص الإنجليزي
     const response = await fetch(ENHANCEMENT_API_URL, {
       method: "POST",
       headers: {
@@ -172,7 +165,6 @@ app.post("/api/enhance-idea", async (req, res) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        // نمرر النص المُترجم للنموذج
         inputs: `Enhance this idea into a detailed description:\n"${translatedIdea}"\nEnhanced version:`,
         parameters: { max_new_tokens: 100, temperature: 0.7 },
       }),
@@ -186,16 +178,14 @@ app.post("/api/enhance-idea", async (req, res) => {
 
     const data = JSON.parse(text); 
     
-    // 3. الحصول على النص المحسّن (وهو الآن إنجليزي)
     const enhancedIdea = data[0]?.generated_text?.trim() || idea;
 
     if (enhancedIdea && enhancedIdea.length > translatedIdea.length) { 
-        // 4. ✨ نعرض النص الإنجليزي المحسن مباشرةً
-        return res.json({ success: true, enhancedIdea: enhancedIdea });
+        return res.json({ success: true, enhancedIdea });
     }
 
     // إذا فشل النموذج في التحسين، نستخدم شبكة الأمان
-    const fallbackIdea = localEnhancement(idea); // (نطبق شبكة الأمان على النص الأصلي)
+    const fallbackIdea = localEnhancement(idea);
     return res.json({ success: true, enhancedIdea: fallbackIdea, note: "Used local enhancement after weak AI response" });
 
   } catch (error) {
