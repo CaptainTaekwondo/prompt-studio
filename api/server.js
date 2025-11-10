@@ -1,4 +1,4 @@
-// server.js (الإصدار الاحترافي v4.9 - إصلاح الرابط النهائي لـ Hugging Face)
+// server.js (الإصدار الاحترافي v5.0 - الرابط الصحيح + الموديل الصحيح)
 const express = require('express');
 const cors = require('cors');
 
@@ -6,12 +6,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// --- ✨ (جديد v4.9) ---
+// --- ✨ (جديد v5.0) ---
 const HF_TOKEN = process.env.HF_TOKEN;
-const MODEL_NAME = "mistralai/Mistral-7B-Instruct-v0.2"; // (اسم الموديل)
-// (هذا هو الرابط الجديد مدموجًا باسم الموديل)
-const HF_API_URL = `https://api-inference.huggingface.co/models/${MODEL_NAME}`; 
-// (ملحوظة: لقد عدنا لاستخدام الرابط الأصلي api-inference مع اسم الموديل، لأن الرابط router .../hf-inference يسبب "Not Found")
+// (هذا هو الرابط الصحيح من رسالة الخطأ)
+const HF_API_URL = "https://router.huggingface.co/hf-inference"; 
+// (سنستخدم موديل مضمون ومجاني من جوجل)
+const MODEL_NAME = "google/flan-t5-large"; 
 // --- (نهاية التعديل) ---
 
 
@@ -121,7 +121,7 @@ app.post('/api/generate-prompt', (req, res) => {
 });
 
 
-// --- ✨ (جديد v4.9) نقطة API تحسين الفكرة (تستخدم الرابط الصحيح) ---
+// --- ✨ (جديد v5.0) نقطة API تحسين الفكرة (الرابط الصحيح + الموديل الصحيح) ---
 app.post('/api/enhance-idea', async (req, res) => {
     if (!HF_TOKEN) {
         return res.status(500).json({ error: 'API key (HF_TOKEN) is not configured on server' });
@@ -131,22 +131,24 @@ app.post('/api/enhance-idea', async (req, res) => {
         const { idea } = req.body;
         if (!idea) return res.status(400).json({ error: 'Idea is required' });
 
-        const systemPrompt = `You are a prompt expert. Take the user's simple idea and turn it into a rich, detailed, cinematic description.
+        // (برومبت بسيط ومباشر)
+        const systemPrompt = `Take the user's simple idea and turn it into a rich, detailed, cinematic description.
 User: ${idea}
-You: `; 
+Description: `; // (نترك "Description: " فارغة ليقوم الموديل بإكمالها)
 
-        const response = await fetch(HF_API_URL, { // (✨ v4.9: استخدام الرابط الصحيح المدمج)
+        const response = await fetch(HF_API_URL, { 
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${HF_TOKEN}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                // (✨ v4.9: تم حذف اسم الموديل من هنا لأنه أصبح في الرابط)
+                // (✨ v5.0: إضافة الموديل الصحيح هنا)
+                model: MODEL_NAME, 
                 inputs: systemPrompt,
                 parameters: {
                     max_new_tokens: 100, 
-                    temperature: 0.7,
+                    temperature: 0.8,
                     return_full_text: false 
                 }
             })
