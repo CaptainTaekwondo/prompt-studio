@@ -1,17 +1,23 @@
-// server.js (الإصدار الاحترافي v3.0 - Static Engine - مع الأبعاد)
+// server.js (الإصدار الاحترافي v4.0 - دمج Gemini API)
 const express = require('express');
 const cors = require('cors');
+
+// --- ✨ (جديد 3.2) --- استيراد مكتبة جوجل للذكاء الاصطناعي
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// --- 1. مكتبة بيانات المنصات (تم تحديثها لتستخدم الأبعاد) ---
+// --- ✨ (جديد 3.2) --- قراءة المفتاح السري من Vercel
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+
+// --- 1. مكتبة بيانات المنصات (المحرك الثابت - يبقى كما هو) ---
 const platformsData = {
     // 🖼️ منصات الصور
     'midjourney': {
         name: 'Midjourney', logo: '🎨', url: 'https://www.midjourney.com',
-        // --- ✨ (محدّث) إضافة الأبعاد ---
         prompt: (idea, style, lighting, composition, aspectRatio) => 
             `/imagine prompt: ${idea}, ${style || 'realistic'} style, ${lighting || 'natural'} lighting, ${composition || 'medium shot'} composition, 8K resolution, ultra-detailed, cinematic quality --ar ${aspectRatio || '1:1'} --v 6.2 --style raw`
     },
@@ -20,6 +26,7 @@ const platformsData = {
         prompt: (idea, style, lighting, composition, aspectRatio) => 
             `A professional ${style || 'realistic'} image of "${idea}" with ${lighting || 'natural'} lighting and ${composition || 'creative'} composition. (Aspect Ratio: ${aspectRatio || '1:1'}). Highly detailed, 8K resolution, cinematic quality.`
     },
+    // ... (باقي المنصات تبقى كما هي) ...
     'stablediffusion': {
         name: 'Stable Diffusion', logo: '⚙️', url: 'https://stability.ai/stable-diffusion',
         prompt: (idea, style, lighting, composition, aspectRatio) => 
@@ -78,10 +85,9 @@ const platformsData = {
     },
 };
 
-// --- 2. نقطة API الرئيسية (المعدلة لترسل JSON) ---
+// --- 2. نقطة API الرئيسية (المحرك الثابت - تبقى كما هي) ---
 app.post('/api/generate-prompt', (req, res) => {
     try {
-        // --- ✨ (محدّث) استقبال الأبعاد ---
         const { idea, type, style, lighting, composition, aspectRatio, platform } = req.body;
         
         if (!idea) {
@@ -104,7 +110,6 @@ app.post('/api/generate-prompt', (req, res) => {
             targetPlatforms = type === 'video' ? videoPlatforms : imagePlatforms;
         }
 
-        // --- 3. بناء الرد المنظم (JSON) ---
         const results = targetPlatforms.map(platformId => {
             const data = platformsData[platformId];
             if (!data) return null; 
@@ -115,7 +120,6 @@ app.post('/api/generate-prompt', (req, res) => {
                 name: data.name,
                 logo: data.logo,
                 url: data.url,
-                // --- ✨ (محدّث) إرسال الأبعاد للدالة ---
                 prompt: promptFunction(idea, style, lighting, composition, aspectRatio) 
             };
         }).filter(p => p !== null); 
@@ -134,5 +138,61 @@ app.post('/api/generate-prompt', (req, res) => {
     }
 });
 
-// (تصدير لـ Vercel)
+
+// --- ✨ (جديد 3.2) نقطة API لتحسين الفكرة باستخدام Gemini ---
+app.post('/api/enhance-idea', async (req, res) => {
+    try {
+        const { idea } = req.body;
+
+        if (!idea) {
+            return res.status(400).json({ error: 'Idea is required for enhancement' });
+        }
+        if (!process.env.GEMINI_API_KEY) {
+             return res.status(500).json({ error: 'API key is not configured on server' });
+        }
+
+        // 1. تحديد النموذج (سنستخدم فلاش لسرعته)
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+        // 2. البرومبت النظامي (التعليمات)
+        const systemPrompt = `أنت خبير في كتابة البرومبتات للذكاء الاصطناعي التوليدي.
+        مهمتك هي أخذ فكرة بسيطة من المستخدم وتحويلها إلى وصف غني بالتفاصيل، إبداعي، وسينمائي.
+        لا تضف أي مقدمات أو خواتيم. فقط أعد الوصف المحسّن مباشرة.
+        مثال:
+        المستخدم: قطة ترتدي قبعة
+        أنت: قطة فارسية رمادية جميلة ترتدي قبعة مخملية حمراء صغيرة، تجلس بفخر على كرسي ملكي قديم.`;
+        
+        // 3. إنشاء المحادثة
+        const chat = model.startChat({
+            history: [
+                { role: "user", parts: [{ text: systemPrompt }] },
+                { role: "model", parts: [{ text: "نعم، أنا جاهز. أعطني الفكرة البسيطة." }] }
+            ],
+            generationConfig: {
+                maxOutputTokens: 200, // تحديد حد أقصى للرد
+            },
+        });
+
+        // 4. إرسال فكرة المستخدم
+        const result = await chat.sendMessage(idea);
+        const response = result.response;
+        const enhancedIdea = response.text();
+
+        // 5. إرجاع النتيجة
+        res.json({ 
+            success: true,
+            enhancedIdea: enhancedIdea.trim()
+        });
+
+    } catch (error) {
+        console.error('Error enhancing idea:', error);
+        res.status(500).json({ 
+            success: false,
+            error: 'Failed to enhance idea: ' + error.message 
+        });
+    }
+});
+
+
+// (تصدير لـ Vercel - يبقى كما هو)
 module.exports = app;
