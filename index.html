@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt AI pro - 2025</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+    <header class="header">
+        <div class="container">
+            <div class="header-buttons">
+                <button id="lang-toggle" class="header-btn">
+                    <i class="fas fa-language"></i> <span id="lang-toggle-text">العربية</span>
+                </button>
+                <button id="share-site-button" class="header-btn">
+                    <i class="fas fa-share-alt"></i> <span data-i18n="btnShareSite">Share</span>
+                </button>
+            </div>
+            <h1><i class="fas fa-magic-sparkles"></i> <span data-i18n="headerTitle">✨️ Prompt AI pro ✨️</span></h1>
+            <p class="year" data-i18n="year">2025</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="toggle-container">
+            <button id="type-image" class="toggle-button active" data-type="image">
+                <i class="fas fa-image"></i> <span data-i18n="btnImage">Image</span>
+            </button>
+            <button id="type-video" class="toggle-button" data-type="video">
+                <i class="fas fa-video"></i> <span data-i18n="btnVideo">Video</span>
+            </button>
+        </div>
+
+        <div class="hero-section" style="text-align: center; margin-bottom: 30px; color: white; padding: 20px; border-radius: 20px; background: rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+            <h2 style="font-size: 2.1rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3); margin-bottom: 10px;">
+                حوّل فكرة واحدة إلى برومبت احترافي... لجميع المنصات
+            </h2>
+            <p style="font-size: 1.15rem; opacity: 0.9; line-height: 1.6;">
+                أداة "Prompt AI pro" هي (المترجم) الذكي. 
+                اكتب فكرتك بالأسفل، واحصل على البرومبت المثالي المخصص لـ Midjourney, DALL-E, Runway, Pika, والمزيد.
+            </p>
+        </div>
+
+
+        <div class="card">
+            <h2><i class="fas fa-lightbulb" id="idea-icon"></i> <span data-i18n="card1Title">1. Describe Your Creative Idea</span></h2>
+            
+            <div class="idea-container" style="position: relative;">
+                <textarea id="idea-input" data-i18n-placeholder="placeholderIdea" style="padding-left: 50px;"></textarea> 
+                
+                <button id="enhance-button" title="تحسين الفكرة باستخدام Gemini AI" style="position: absolute; left: 10px; top: 12px; background: linear-gradient(135deg, #7c3aed, #06b6d4); color: white; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: all 0.3s ease;">
+                    <i class="fas fa-magic-sparkles" id="enhance-icon"></i>
+                    <div class="loader" id="enhance-loader" style="display: none; width: 20px; height: 20px; border-width: 3px;"></div>
+                </button>
+                
+                <style>
+                    body.rtl #enhance-button { left: auto; right: 10px; }
+                    body.rtl #idea-input { padding-left: 15px; padding-right: 50px; }
+                </style>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2><i class="fas fa-sliders-h"></i> <span data-i18n="card2Title">2. Content Settings</span></h2>
+            
+            <div class="controls-grid">
+                <div class="control-group">
+                    <label for="style-select"><i class="fas fa-palette"></i> <span data-i18n="labelStyle">Artistic Style</span></label>
+                    <select id="style-select">
+                        <option value="" data-i18n="optDefault">(Default: Realistic)</option>
+                        <option value="realistic" data-i18n="optRealistic">Realistic</option>
+                        <option value="cinematic" data-i18n="optCinematic">Cinematic</option>
+                        <option value="anime" data-i18n="optAnime">Anime</option>
+                        <option value="digital art" data-i18n="optDigitalArt">Digital Art</option>
+                        <option value="fantasy" data-i18n="optFantasy">Fantasy</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="lighting-select"><i class="fas fa-sun"></i> <span data-i18n="labelLighting">Lighting</span></label>
+                    <select id="lighting-select">
+                        <option value="" data-i18n="optDefault">(Default: Natural)</option>
+                        <option value="natural" data-i18n="optNatural">Natural</option>
+                        <option value="dramatic" data-i18n="optDramatic">Dramatic</option>
+                        <option value="soft" data-i18n="optSoft">Soft</option>
+                        <option value="neon" data-i18n="optNeon">Neon</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="composition-select"><i class="fas fa-camera"></i> <span data-i18n="labelComposition">Composition</span></label>
+                    <select id="composition-select">
+                        <option value="" data-i18n="optDefault">(Default: Medium Shot)</option>
+                        <option value="close-up" data-i18n="optCloseup">Close-up</option>
+                        <option value="wide shot" data-i18n="optWideShot">Wide Shot</option>
+                        <option value="aerial view" data-i18n="optAerialView">Aerial View</option>
+                        <option value="dynamic angle" data-i18n="optDynamicAngle">Dynamic Angle</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="aspect-ratio-select"><i class="fas fa-expand-arrows-alt"></i> <span data-i18n="labelAspectRatio">Aspect Ratio</span></label>
+                    <select id="aspect-ratio-select">
+                        <option value="1:1" data-i18n="optAr1x1">1:1 (Square) - Instagram Post</option>
+                        <option value="9:16" data-i18n="optAr9x16">9:16 (Portrait) - TikTok/Story</option>
+                        <option value="16:9" data-i18n="optAr16x9">16:9 (Landscape) - YouTube</option>
+                        <option value="4:5" data-i18n="optAr4x5">4:5 (Tall) - Instagram Portrait</option>
+                        <option value="4:3" data-i18n="optAr4x3">4:3 (Standard) - Photo</option>
+                    </select>
+                </div>
+
+                <div class="control-group full-width">
+                    <label for="platform-select"><i class="fas fa-layer-group"></i> <span data-i18n="labelPlatform">Select Platform</span></label>
+                    <select id="platform-select">
+                        <option value="all" data-i18n="optAllPlatforms">All Platforms</option>
+                        
+                        <optgroup label="🖼️ Image Platforms" class="image-options">
+                            <option value="midjourney" data-logo="🎨">Midjourney</option>
+                            <option value="dalle3" data-logo="🤖">DALL-E 3</option>
+                            <option value="stablediffusion" data-logo="⚙️">Stable Diffusion</option>
+                            <option value="leonardo" data-logo="🦁">Leonardo.ai</option>
+                            <option value="adobefirefly" data-logo="🔥">Adobe Firefly</option>
+                            <option value="gemini" data-logo="💎">Google Gemini</option>
+                            <option value="chatgpt" data-logo="💬">ChatGPT DALL-E</option>
+                            <option value="grok" data-logo="🦄">Grok AI</option>
+                        </optgroup>
+                        
+                        <optgroup label="🎬 Video Platforms" class="video-options">
+                            <option value="runway" data-logo="🎬">Runway ML</option>
+                            <option value="pika" data-logo="⚡">Pika Labs</option>
+                            <option value="luma" data-logo="✨">Luma Dream Machine</option>
+                            <option value="stablevideo" data-logo="📹">Stable Video</option>
+                            <option value="kaiber" data-logo="🌊">Kaiber</option>
+                            <option value="grok" data-logo="🦄">Grok AI</option>
+                        </optgroup>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <button id="generate-button">
+            <i class="fas fa-magic"></i> <span data-i18n="btnGenerate">Generate Professional Prompts</span>
+            <div class="loader" id="loader" style="display: none;"></div>
+        </button>
+
+        <div class="result-container" id="result-container" style="display: none;">
+            </div>
+    </main>
+    
+    <script src="script.js"></script>
+</body>
+</html>
