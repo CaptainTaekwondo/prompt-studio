@@ -1,4 +1,4 @@
-// server.js (الإصدار الاحترافي v5.0 - الرابط الصحيح + الموديل الصحيح)
+// server.js (الإصدار الاحترافي v5.1 - إصلاح الباج + الموديل المضمون)
 const express = require('express');
 const cors = require('cors');
 
@@ -6,12 +6,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// --- ✨ (جديد v5.0) ---
+// --- ✨ (جديد v5.1) ---
 const HF_TOKEN = process.env.HF_TOKEN;
-// (هذا هو الرابط الصحيح من رسالة الخطأ)
 const HF_API_URL = "https://router.huggingface.co/hf-inference"; 
-// (سنستخدم موديل مضمون ومجاني من جوجل)
-const MODEL_NAME = "google/flan-t5-large"; 
+// (موديل خفيف ومضمون ومجاني 100%)
+const MODEL_NAME = "gpt2"; 
 // --- (نهاية التعديل) ---
 
 
@@ -121,7 +120,7 @@ app.post('/api/generate-prompt', (req, res) => {
 });
 
 
-// --- ✨ (جديد v5.0) نقطة API تحسين الفكرة (الرابط الصحيح + الموديل الصحيح) ---
+// --- ✨ (جديد v5.1) نقطة API تحسين الفكرة (إصلاح الباج + الموديل المضمون) ---
 app.post('/api/enhance-idea', async (req, res) => {
     if (!HF_TOKEN) {
         return res.status(500).json({ error: 'API key (HF_TOKEN) is not configured on server' });
@@ -131,10 +130,9 @@ app.post('/api/enhance-idea', async (req, res) => {
         const { idea } = req.body;
         if (!idea) return res.status(400).json({ error: 'Idea is required' });
 
-        // (برومبت بسيط ومباشر)
         const systemPrompt = `Take the user's simple idea and turn it into a rich, detailed, cinematic description.
 User: ${idea}
-Description: `; // (نترك "Description: " فارغة ليقوم الموديل بإكمالها)
+Description: `; 
 
         const response = await fetch(HF_API_URL, { 
             method: 'POST',
@@ -143,7 +141,6 @@ Description: `; // (نترك "Description: " فارغة ليقوم المودي�
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                // (✨ v5.0: إضافة الموديل الصحيح هنا)
                 model: MODEL_NAME, 
                 inputs: systemPrompt,
                 parameters: {
@@ -154,15 +151,21 @@ Description: `; // (نترك "Description: " فارغة ليقوم المودي�
             })
         });
 
-        const hfResult = await response.json();
-
-        if (response.status === 503) {
-             throw new Error("Model is loading, please try again in 20 seconds.");
-        }
+        // --- ✨ (v5.1) هذا هو إصلاح الباج ---
+        // (أولاً، نتأكد أن الرد "OK" قبل أن نحاول قراءته كـ JSON)
         if (!response.ok) {
-            throw new Error(hfResult.error || "Failed to fetch from Hugging Face");
+            // (إذا فشل، نقرأ رسالة الخطأ كنص عادي)
+            const errorText = await response.text();
+            if (response.status === 503) {
+                throw new Error("Model (gpt2) is loading, please try again in 20 seconds.");
+            }
+            throw new Error(errorText || "Failed to fetch from Hugging Face");
         }
+        // --- (نهاية إصلاح الباج) ---
 
+        // (لو نجح، نكمل)
+        const hfResult = await response.json();
+        
         const enhancedIdea = hfResult[0].generated_text.trim();
 
         res.json({ success: true, enhancedIdea: enhancedIdea });
