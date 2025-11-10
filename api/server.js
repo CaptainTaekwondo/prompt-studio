@@ -1,15 +1,17 @@
-// server.js (الإصدار الاحترافي v4.7 - يعمل بـ Hugging Face)
+// server.js (الإصدار الاحترافي v4.8 - إصلاح رابط Hugging Face)
 const express = require('express');
 const cors = require('cors');
-// (لم نعد بحاجة لـ Gemini)
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// --- ✨ (جديد v4.7) --- قراءة مفتاح Hugging Face
+// --- ✨ (جديد v4.8) ---
 const HF_TOKEN = process.env.HF_TOKEN;
-const HF_API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"; // (اخترنا موديل قوي ومجاني)
+// (هذا هو الرابط الجديد من رسالة الخطأ)
+const HF_API_URL = "https://router.huggingface.co/hf-inference"; 
+const MODEL_NAME = "mistralai/Mistral-7B-Instruct-v0.2"; // (سنرسل اسم الموديل في الجسم)
+// --- (نهاية التعديل) ---
 
 // --- قواميس الترجمة (كما هي) ---
 const styleMap = {
@@ -96,7 +98,7 @@ app.post('/api/generate-prompt', (req, res) => {
         if (platform && platform !== 'all') {
             if (platformsData[platform]) { targetPlatforms = [platform]; }
         } else {
-            targetPlatforms = type === 'video' ? videoPlatforms : imagePlatforms;
+            targetPlatforms = type === 'video' ? videoPlatforms : videoPlatforms;
         }
 
         const results = targetPlatforms.map(platformId => {
@@ -117,7 +119,7 @@ app.post('/api/generate-prompt', (req, res) => {
 });
 
 
-// --- ✨ (جديد v4.7) نقطة API تحسين الفكرة (تعمل بـ Hugging Face) ---
+// --- ✨ (جديد v4.8) نقطة API تحسين الفكرة (تعمل بـ Hugging Face) ---
 app.post('/api/enhance-idea', async (req, res) => {
     if (!HF_TOKEN) {
         return res.status(500).json({ error: 'API key (HF_TOKEN) is not configured on server' });
@@ -127,24 +129,24 @@ app.post('/api/enhance-idea', async (req, res) => {
         const { idea } = req.body;
         if (!idea) return res.status(400).json({ error: 'Idea is required' });
 
-        // (هذا هو البرومبت لنظام Hugging Face)
         const systemPrompt = `You are a prompt expert. Take the user's simple idea and turn it into a rich, detailed, cinematic description.
-        User: ${idea}
-        You: `; // (نترك "You: " فارغة ليقوم الموديل بإكمالها)
+User: ${idea}
+You: `; 
 
-        // (الاتصال بـ Hugging Face API)
-        const response = await fetch(HF_API_URL, {
+        const response = await fetch(HF_API_URL, { // (✨ v4.8: استخدام الرابط الجديد)
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${HF_TOKEN}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
+                // (✨ v4.8: إضافة الموديل هنا)
+                model: MODEL_NAME, 
                 inputs: systemPrompt,
                 parameters: {
-                    max_new_tokens: 100, // (حدد 100 كلمة جديدة)
+                    max_new_tokens: 100, 
                     temperature: 0.7,
-                    return_full_text: false // (نريد الإجابة فقط، وليس البرومبت)
+                    return_full_text: false 
                 }
             })
         });
@@ -158,7 +160,6 @@ app.post('/api/enhance-idea', async (req, res) => {
             throw new Error(hfResult.error || "Failed to fetch from Hugging Face");
         }
 
-        // (استخراج النص)
         const enhancedIdea = hfResult[0].generated_text.trim();
 
         res.json({ success: true, enhancedIdea: enhancedIdea });
