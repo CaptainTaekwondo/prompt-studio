@@ -1,4 +1,5 @@
-// server.js (الإصدار v5.7 - زيادة الجودة إلى Flan T5-Large)
+// server.js (الإصدار النهائي v5.8 - الترجمة + Flan T5-Small)
+
 const express = require("express");
 const cors = require("cors");
 
@@ -6,10 +7,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// === إعدادات واجهة Hugging Face (الموديل الكبير) ===
-const MODEL_NAME = "google/flan-t5-large"; // ✨ (تمت الترقية من small إلى large)
-const HF_API_URL = `https://api-inference.huggingface.co/models/${MODEL_NAME}`; 
-const HF_TOKEN = process.env.HF_TOKEN; 
+// === إعدادات واجهة Hugging Face ===
+const HF_TOKEN = process.env.HF_TOKEN;
+
+// نموذج الترجمة (Helsinki-NLP)
+const TRANSLATION_API_URL = "https://api-inference.huggingface.co/models/Helsinki-NLP/opus-mt-ar-en";
+const ENHANCEMENT_API_URL = "https://api-inference.huggingface.co/models/google/flan-t5-small"; 
+
+
 // === دالة التحسين المحلي (شبكة الأمان) ===
 function localEnhancement(idea) {
   const enhancements = [
@@ -19,13 +24,40 @@ function localEnhancement(idea) {
     "award winning composition, visually stunning, detailed background"
   ];
   const randomEnhancement = enhancements[Math.floor(Math.random() * enhancements.length)];
-  return `${idea}, ${randomEnhancement}`; 
+  return `${idea}, ${randomEnhancement}`;
 }
+
+// === دالة الترجمة (New) ===
+async function translateArabicToEnglish(text) {
+    try {
+        const response = await fetch(TRANSLATION_API_URL, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${HF_TOKEN}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ inputs: text }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data && data[0] && data[0].translation_text) {
+            return data[0].translation_text;
+        }
+        // إذا فشلت الترجمة، نعيد النص الأصلي
+        return text; 
+    } catch (error) {
+        // في حالة وجود خطأ في الاتصال، نرجع النص الأصلي
+        return text; 
+    }
+}
+
 
 // === قواميس الأنماط (كما هي) ===
 const styleMap = { default: "realistic", realistic: "realistic", cinematic: "cinematic", anime: "anime", digital: "digital art", fantasy: "fantasy" };
 const lightingMap = { natural: "natural lighting", dramatic: "dramatic lighting", soft: "soft lighting", neon: "neon lighting" };
 const compositionMap = { closeup: "close-up shot", wideshot: "wide shot", aerial: "aerial view", dynamic: "dynamic angle" };
+
 // === بيانات المنصات (كما هي) ===
 const platformsData = {
   midjourney: {
@@ -70,46 +102,50 @@ const platformsData = {
   }
 };
 
-// === توليد البرومبتات (كما هي) ===
-app.post("/api/generate-prompt", (req, res) => {
-  // (منطق توليد البرومبتات - كما هو)
-    try {
-        const { idea, type, style, lighting, composition, aspectRatio, platform } = req.body;
-        if (!idea) return res.status(400).json({ error: "Idea is required" });
+// === توليد البرومبتات (مع إضافة الترجمة) ===
+app.post("/api/generate-prompt", async (req, res) => { // ✨ (أصبحت دالة async)
+  try {
+    const { idea, type, style, lighting, composition, aspectRatio, platform } = req.body;
+    if (!idea) return res.status(400).json({ error: "Idea is required" });
 
-        const translatedStyle = styleMap[style] || "realistic";
-        const translatedLighting = lightingMap[lighting] || "natural lighting";
-        const translatedComposition = compositionMap[composition] || "medium shot";
+    // 1. ✨ الترجمة أولاً
+    const translatedIdea = await translateArabicToEnglish(idea); 
 
-        const imagePlatforms = ["midjourney", "dalle3", "stablediffusion", "leonardo", "gemini", "grok"];
-        const videoPlatforms = ["runway", "pika", "luma", "grok-video"];
+    // 2. تطبيق القواميس
+    const translatedStyle = styleMap[style] || "realistic";
+    const translatedLighting = lightingMap[lighting] || "natural lighting";
+    const translatedComposition = compositionMap[composition] || "medium shot";
 
-        let targetPlatforms = [];
-        if (platform && platform !== "all") {
-            if (platformsData[platform]) targetPlatforms = [platform];
-        } else {
-            targetPlatforms = type === "video" ? videoPlatforms : imagePlatforms;
-        }
+    const imagePlatforms = ["midjourney", "dalle3", "stablediffusion", "leonardo", "gemini", "grok"];
+    const videoPlatforms = ["runway", "pika", "luma", "grok-video"];
 
-        const results = targetPlatforms.map((p) => ({
-            id: p,
-            name: platformsData[p].name,
-            logo: platformsData[p].logo,
-            url: platformsData[p].url,
-            prompt: platformsData[p].prompt(
-                idea,
-                translatedStyle,
-                translatedLighting,
-                translatedComposition,
-                aspectRatio
-            ),
-        }));
-
-        res.json({ success: true, prompts: results });
-    } catch (error) {
-        console.error("Error generating prompt:", error);
-        res.status(500).json({ success: false, error: "Failed to generate prompt: " + error.message });
+    let targetPlatforms = [];
+    if (platform && platform !== "all") {
+      if (platformsData[platform]) targetPlatforms = [platform];
+    } else {
+      targetPlatforms = type === "video" ? videoPlatforms : imagePlatforms;
     }
+
+    const results = targetPlatforms.map((p) => ({
+      id: p,
+      name: platformsData[p].name,
+      logo: platformsData[p].logo,
+      url: platformsData[p].url,
+      // 3. نمرر النص المُترجم
+      prompt: platformsData[p].prompt(
+        translatedIdea, 
+        translatedStyle,
+        translatedLighting,
+        translatedComposition,
+        aspectRatio
+      ),
+    }));
+
+    res.json({ success: true, prompts: results });
+  } catch (error) {
+    console.error("Error generating prompt:", error);
+    res.status(500).json({ success: false, error: "Failed to generate prompt: " + error.message });
+  }
 });
 
 // === تحسين الفكرة (النسخة السريعة) ===
@@ -122,15 +158,18 @@ app.post("/api/enhance-idea", async (req, res) => {
         return res.json({ success: true, enhancedIdea, note: "Used local fallback" });
     }
 
-    const response = await fetch(HF_API_URL, {
+    // 1. ✨ الترجمة أولاً
+    const translatedIdea = await translateArabicToEnglish(idea); 
+    
+    const response = await fetch(ENHANCEMENT_API_URL, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${HF_TOKEN}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        // استخدام Flan T5-Large
-        inputs: `Enhance this idea into a detailed description:\n"${idea}"\nEnhanced version:`,
+        // 2. نمرر النص المُترجم للنموذج
+        inputs: `Enhance this idea into a detailed description:\n"${translatedIdea}"\nEnhanced version:`,
         parameters: { max_new_tokens: 100, temperature: 0.7 },
       }),
     });
@@ -145,7 +184,8 @@ app.post("/api/enhance-idea", async (req, res) => {
     
     const enhancedIdea = data[0]?.generated_text?.trim() || idea;
 
-    if (enhancedIdea && enhancedIdea.length > idea.length + 10) { // تأكيد أن التحسين أكبر بـ 10 حروف على الأقل
+    // شرط التحقق من الجودة الضعيف
+    if (enhancedIdea && enhancedIdea.length > idea.length + 10) {
         return res.json({ success: true, enhancedIdea });
     }
 
