@@ -1,3 +1,4 @@
+// package.json (الإصدار v5.8)
 {
   "name": "prompt-studio",
   "version": "2.0.0",
@@ -10,7 +11,7 @@
   "dependencies": {
     "express": "^4.18.2",
     "cors": "^2.8.5",
-    "@google/generative-ai": "^0.11.3"
+    "node-fetch": "^2.6.7" 
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
