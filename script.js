@@ -1,6 +1,6 @@
-// script.js (الإصدار الاحترافي v4.1 - متوافق مع HTML/CSS الجديد)
+// script.js (الإصدار الاحترافي v4.4 - متوافق مع HTML/CSS الجديد)
 
-// --- 1. قاموس الترجمة (محدّث v4.1) ---
+// --- 1. قاموس الترجمة (محدّث v4.4) ---
 const translations = {
     "en": {
         "langBtn": "العربية",
@@ -39,7 +39,7 @@ const translations = {
         "labelPlatform": "Select Platform",
         "optAllPlatforms": "All Platforms",
         "btnGenerate": "Generate Professional Prompts",
-        "btnEnhance": "Enhance Idea", // (جديد)
+        "btnEnhance": "Enhance Idea", 
         "btnCopy": "Copy",
         "btnVisit": "Visit Site",
         "btnShare": "Share", 
@@ -89,7 +89,7 @@ const translations = {
         "labelPlatform": "اختر المنصة",
         "optAllPlatforms": "جميع المنصات",
         "btnGenerate": "توليد البرومبتات الاحترافية",
-        "btnEnhance": "تحسين الفكرة", // (جديد)
+        "btnEnhance": "تحسين الفكرة", 
         "btnCopy": "نسخ",
         "btnVisit": "زيارة الموقع",
         "btnShare": "مشاركة", 
@@ -118,16 +118,16 @@ function setLanguage(lang) {
         document.body.classList.remove('rtl');
     }
     
-    // (محدّث v4.1: ليتعامل مع الـ span داخل الزر)
     document.querySelectorAll('[data-i18n]').forEach(element => {
         const key = element.getAttribute('data-i18n');
         if (translations[lang][key]) {
-            // إذا كان العنصر هو زر ويحتوي على span، غيّر الـ span
-            const span = element.querySelector('span');
-            if (span && (key === 'btnGenerate' || key === 'btnEnhance' || key === 'btnShareSite' || key === 'btnImage' || key === 'btnVideo')) {
-                span.textContent = translations[lang][key];
+            // (محدّث v4.1: ليتعامل مع الـ span داخل الزر)
+            let target = element.querySelector('span') || element;
+            // (للنصوص العادية داخل الأزرار أو العناوين)
+            if (target.childNodes[0] && target.childNodes[0].nodeType === Node.TEXT_NODE) {
+                target.childNodes[0].textContent = translations[lang][key];
             } else {
-                element.textContent = translations[lang][key];
+                target.textContent = translations[lang][key];
             }
         }
     });
@@ -142,7 +142,7 @@ function setLanguage(lang) {
 
 document.addEventListener("DOMContentLoaded", () => {
     
-    // --- 3. تحديد العناصر (محدّث v4.1) ---
+    // --- 3. تحديد العناصر (محدّث v4.4) ---
     const ideaInput = document.getElementById("idea-input");
     const styleSelect = document.getElementById("style-select");
     const lightingSelect = document.getElementById("lighting-select");
@@ -156,7 +156,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const langToggleButton = document.getElementById("lang-toggle");
     const shareSiteButton = document.getElementById("share-site-button"); 
 
-    // (تحديد عناصر الأزرار الجديدة)
     const generateButton = document.getElementById("generate-button");
     const generateIcon = generateButton.querySelector("i");
     const generateText = generateButton.querySelector("span");
@@ -171,7 +170,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const ENHANCE_API_ENDPOINT = "/api/enhance-idea";
     const STORAGE_KEY = 'promptStudioState_v1';
 
-    // --- (دوال حفظ وتحميل الحالة - معدّلة v4.1) ---
+    // --- (دوال حفظ وتحميل الحالة - معدّلة v4.4) ---
     function saveState() {
         const state = {
             idea: ideaInput.value,
@@ -190,9 +189,9 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const state = JSON.parse(savedState);
             ideaInput.value = state.idea || '';
-            styleSelect.value = state.style || 'default'; // (قيمة افتراضية جديدة)
-            lightingSelect.value = state.lighting || 'natural'; // (قيمة افتراضية جديدة)
-            compositionSelect.value = state.composition || 'closeup'; // (قيمة افتراضية جديدة)
+            styleSelect.value = state.style || 'default'; 
+            lightingSelect.value = state.lighting || 'natural'; 
+            compositionSelect.value = state.composition || 'closeup'; 
             aspectRatioSelect.value = state.aspectRatio || '1:1';
             platformSelect.value = state.platform || 'all';
             currentType = state.type || 'image'; 
@@ -243,7 +242,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // --- 5. حدث زر تحسين الفكرة (معدّل v4.1) ---
+    // --- 5. حدث زر تحسين الفكرة (معدّل v4.4) ---
     enhanceButton.addEventListener("click", async () => {
         const idea = ideaInput.value.trim();
         if (!idea) {
@@ -252,10 +251,9 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // (تفعيل الـ Loader الجديد)
         enhanceButton.disabled = true;
         enhanceIcon.style.display = 'none';
-        if (enhanceText) enhanceText.style.display = 'none'; // (التأكد من وجود النص)
+        if (enhanceText) enhanceText.style.display = 'none'; 
         enhanceLoader.style.display = 'block';
 
         try {
@@ -269,7 +267,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (data.success && data.enhancedIdea) {
                 ideaInput.value = data.enhancedIdea;
-                saveState(); // حفظ الفكرة الجديدة
+                saveState(); 
             } else {
                 throw new Error(data.error || "Invalid response");
             }
@@ -277,7 +275,6 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error("Enhancement error:", error);
             alert(translations[currentLang]['alertEnhanceError'] + error.message);
         } finally {
-            // (إيقاف الـ Loader الجديد)
             enhanceButton.disabled = false;
             enhanceIcon.style.display = 'block';
             if (enhanceText) enhanceText.style.display = 'block';
@@ -285,7 +282,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // --- 6. حدث زر التوليد الرئيسي (معدّل v4.1) ---
+    // --- 6. حدث زر التوليد الرئيسي (معدّل v4.4) ---
     generateButton.addEventListener("click", async () => {
         const idea = ideaInput.value.trim();
         if (!idea) {
@@ -294,7 +291,6 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
         
-        // (تفعيل الـ Loader الجديد)
         generateButton.disabled = true;
         generateIcon.style.display = 'none';
         if (generateText) generateText.style.display = 'none';
@@ -336,7 +332,6 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error("Generation error:", error);
             alert(translations[currentLang]['alertError'] + error.message);
         } finally {
-            // (إيقاف الـ Loader الجديد)
             generateButton.disabled = false;
             generateIcon.style.display = 'block';
             if (generateText) generateText.style.display = 'block';
@@ -344,31 +339,28 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // --- 7. دوال مساعدة (معدلة v4.1) ---
+    // --- 7. دوال مساعدة (معدلة v4.4) ---
     function updatePlatformOptions() {
-        // (تحديث القائمة لتطابق HTML الجديد)
         const imageOptions = platformSelect.querySelectorAll('optgroup[label="🖼️ Image Platforms"], optgroup[label="🖼️ Image Platforms"] > option');
         const videoOptions = platformSelect.querySelectorAll('optgroup[label="🎬 Video Platforms"], optgroup[label="🎬 Video Platforms"] > option');
         
         if (currentType === 'image') {
             imageOptions.forEach(opt => opt.style.display = 'block');
             videoOptions.forEach(opt => opt.style.display = 'none');
-            // (تحديث التحقق من القيم الجديدة)
-            if (platformSelect.value && (platformSelect.value === 'runway' || platformSelect.value === 'pika')) {
+            if (platformSelect.value && (platformSelect.value === 'runway' || platformSelect.value === 'pika' || platformSelect.value === 'luma' || platformSelect.value === 'grok-video')) {
                  platformSelect.value = 'all'; 
                  saveState(); 
             }
         } else {
             imageOptions.forEach(opt => opt.style.display = 'none');
             videoOptions.forEach(opt => opt.style.display = 'block');
-            if (platformSelect.value && (platformSelect.value !== 'runway' && platformSelect.value !== 'pika' && platformSelect.value !== 'all')) {
+            if (platformSelect.value && (platformSelect.value !== 'all' && platformSelect.value !== 'runway' && platformSelect.value !== 'pika' && platformSelect.value !== 'luma' && platformSelect.value !== 'grok-video')) {
                  platformSelect.value = 'all';
                  saveState(); 
             }
         }
     }
     window.createPlatformCard = (platformId, name, logo, url, promptText) => {
-        // (الكود كما هو - سليم)
         return `
             <div class="platform-card" data-platform="${platformId}">
                 <div class="platform-header">
