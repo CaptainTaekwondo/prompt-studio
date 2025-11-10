@@ -1,18 +1,15 @@
-// server.js (الإصدار الاحترافي v4.5 - محاولة الموديل الأحدث)
+// server.js (الإصدار الاحترافي v4.7 - يعمل بـ Hugging Face)
 const express = require('express');
 const cors = require('cors');
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+// (لم نعد بحاجة لـ Gemini)
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-let genAI;
-if (process.env.GEMINI_API_KEY) {
-    genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-} else {
-    console.warn("GEMINI_API_KEY is not set in environment variables.");
-}
+// --- ✨ (جديد v4.7) --- قراءة مفتاح Hugging Face
+const HF_TOKEN = process.env.HF_TOKEN;
+const HF_API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"; // (اخترنا موديل قوي ومجاني)
 
 // --- قواميس الترجمة (كما هي) ---
 const styleMap = {
@@ -82,7 +79,7 @@ const platformsData = {
     }
 };
 
-// --- نقطة API الرئيسية (كما هي) ---
+// --- نقطة API الرئيسية (المحرك الثابت) ---
 app.post('/api/generate-prompt', (req, res) => {
     try {
         const { idea, type, style, lighting, composition, aspectRatio, platform } = req.body;
@@ -120,35 +117,52 @@ app.post('/api/generate-prompt', (req, res) => {
 });
 
 
-// --- نقطة API تحسين الفكرة (Gemini) ---
+// --- ✨ (جديد v4.7) نقطة API تحسين الفكرة (تعمل بـ Hugging Face) ---
 app.post('/api/enhance-idea', async (req, res) => {
-    if (!genAI) {
-        return res.status(500).json({ error: 'API key is not configured on server' });
+    if (!HF_TOKEN) {
+        return res.status(500).json({ error: 'API key (HF_TOKEN) is not configured on server' });
     }
 
     try {
         const { idea } = req.body;
         if (!idea) return res.status(400).json({ error: 'Idea is required' });
 
-        // --- ✨ (هذا هو السطر الذي تم تغييره v4.5) ---
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" }); 
-        // --- (نهاية التغيير) ---
+        // (هذا هو البرومبت لنظام Hugging Face)
+        const systemPrompt = `You are a prompt expert. Take the user's simple idea and turn it into a rich, detailed, cinematic description.
+        User: ${idea}
+        You: `; // (نترك "You: " فارغة ليقوم الموديل بإكمالها)
 
-        const systemPrompt = `أنت خبير في كتابة البرومبتات للذكاء الاصطناعي التوليدي. مهمتك هي أخذ فكرة بسيطة من المستخدم وتحويلها إلى وصف غني بالتفاصيل، إبداعي، وسينمائي. لا تضف أي مقدمات أو خواتيم. فقط أعد الوصف المحسّن مباشرة. مثال: المستخدم: قطة ترتدي قبعة. أنت: قطة فارسية رمادية جميلة ترتدي قبعة مخملية حمراء صغيرة، تجلس بفخر على كرسي ملكي قديم.`;
-        
-        const chat = model.startChat({
-            history: [
-                { role: "user", parts: [{ text: systemPrompt }] },
-                { role: "model", parts: [{ text: "نعم، أنا جاهز. أعطني الفكرة البسيطة." }] }
-            ],
-            generationConfig: { maxOutputTokens: 200 },
+        // (الاتصال بـ Hugging Face API)
+        const response = await fetch(HF_API_URL, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${HF_TOKEN}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                inputs: systemPrompt,
+                parameters: {
+                    max_new_tokens: 100, // (حدد 100 كلمة جديدة)
+                    temperature: 0.7,
+                    return_full_text: false // (نريد الإجابة فقط، وليس البرومبت)
+                }
+            })
         });
 
-        const result = await chat.sendMessage(idea);
-        const response = result.response;
-        const enhancedIdea = response.text();
+        const hfResult = await response.json();
 
-        res.json({ success: true, enhancedIdea: enhancedIdea.trim() });
+        if (response.status === 503) {
+             throw new Error("Model is loading, please try again in 20 seconds.");
+        }
+        if (!response.ok) {
+            throw new Error(hfResult.error || "Failed to fetch from Hugging Face");
+        }
+
+        // (استخراج النص)
+        const enhancedIdea = hfResult[0].generated_text.trim();
+
+        res.json({ success: true, enhancedIdea: enhancedIdea });
+
     } catch (error) {
         console.error('Error enhancing idea:', error);
         res.status(500).json({ success: false, error: 'Failed to enhance idea: ' + error.message });
