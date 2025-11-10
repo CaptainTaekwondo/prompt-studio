@@ -1,17 +1,15 @@
-// server.js (الإصدار النهائي v5.7 - Auto Model Detection + Retry + Fallback)
-
+// server.js (الإصدار v5.7 - زيادة الجودة إلى Flan T5-Large)
 const express = require("express");
 const cors = require("cors");
-// Vercel Node.js 18+ يدعم fetch مدمجاً، لا حاجة لـ node-fetch
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// === إعدادات Hugging Face Router ===
-const HF_API_URL = "https://api-inference.huggingface.co/models/google/flan-t5-small"; 
+// === إعدادات واجهة Hugging Face (الموديل الكبير) ===
+const MODEL_NAME = "google/flan-t5-large"; // ✨ (تمت الترقية من small إلى large)
+const HF_API_URL = `https://api-inference.huggingface.co/models/${MODEL_NAME}`; 
 const HF_TOKEN = process.env.HF_TOKEN; 
-
 // === دالة التحسين المحلي (شبكة الأمان) ===
 function localEnhancement(idea) {
   const enhancements = [
@@ -21,74 +19,13 @@ function localEnhancement(idea) {
     "award winning composition, visually stunning, detailed background"
   ];
   const randomEnhancement = enhancements[Math.floor(Math.random() * enhancements.length)];
-  return `${idea}, ${randomEnhancement}`; // ندمج الفكرة مع الوصف
-}
-
-// === دالة الاتصال بـ Hugging Face مع ميزة Retry و Fallback ===
-async function queryHuggingFace(idea, retries = 2) {
-  const systemPrompt = `Expand and improve this idea: ${idea}`;
-
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    try {
-      const response = await fetch(HF_API_URL, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${HF_TOKEN}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          inputs: systemPrompt,
-          parameters: { 
-            max_new_tokens: 70, // تقليل القيمة
-            temperature: 0.7
-          },
-          options: {
-            wait_for_model: true // حل مجرب للموديل البطيء
-          }
-        }),
-      });
-      
-      const text = await response.text();
-      
-      if (response.status === 503) {
-        // النموذج يحمّل - انتظر ثم أعد المحاولة
-        if (attempt < retries) {
-          console.warn(`Model loading (503). Retrying in ${2000 * (attempt + 1)}ms...`);
-          await new Promise(resolve => setTimeout(resolve, 2000 * (attempt + 1)));
-          continue;
-        }
-        throw new Error("Model timeout (503). Try again later.");
-      }
-      
-      if (!response.ok) {
-        throw new Error(`HF API Error (${response.status}): ${text}`);
-      }
-
-      const data = JSON.parse(text);
-      const result = data[0]?.generated_text?.trim();
-      
-      if (result && result.length > idea.length + 5) { // تأكيد التحسين
-        return result;
-      }
-      
-      throw new Error("Result too short or failed to enhance.");
-
-    } catch (error) {
-      if (attempt === retries) {
-        console.error("Final attempt failed:", error.message);
-        throw new Error("Hugging Face API failed after multiple retries.");
-      }
-      // انتظر وأعد المحاولة
-      await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
-    }
-  }
+  return `${idea}, ${randomEnhancement}`; 
 }
 
 // === قواميس الأنماط (كما هي) ===
 const styleMap = { default: "realistic", realistic: "realistic", cinematic: "cinematic", anime: "anime", digital: "digital art", fantasy: "fantasy" };
 const lightingMap = { natural: "natural lighting", dramatic: "dramatic lighting", soft: "soft lighting", neon: "neon lighting" };
 const compositionMap = { closeup: "close-up shot", wideshot: "wide shot", aerial: "aerial view", dynamic: "dynamic angle" };
-
 // === بيانات المنصات (كما هي) ===
 const platformsData = {
   midjourney: {
@@ -135,46 +72,47 @@ const platformsData = {
 
 // === توليد البرومبتات (كما هي) ===
 app.post("/api/generate-prompt", (req, res) => {
-  try {
-    const { idea, type, style, lighting, composition, aspectRatio, platform } = req.body;
-    if (!idea) return res.status(400).json({ error: "Idea is required" });
+  // (منطق توليد البرومبتات - كما هو)
+    try {
+        const { idea, type, style, lighting, composition, aspectRatio, platform } = req.body;
+        if (!idea) return res.status(400).json({ error: "Idea is required" });
 
-    const translatedStyle = styleMap[style] || "realistic";
-    const translatedLighting = lightingMap[lighting] || "natural lighting";
-    const translatedComposition = compositionMap[composition] || "medium shot";
+        const translatedStyle = styleMap[style] || "realistic";
+        const translatedLighting = lightingMap[lighting] || "natural lighting";
+        const translatedComposition = compositionMap[composition] || "medium shot";
 
-    const imagePlatforms = ["midjourney", "dalle3", "stablediffusion", "leonardo", "gemini", "grok"];
-    const videoPlatforms = ["runway", "pika", "luma", "grok-video"];
+        const imagePlatforms = ["midjourney", "dalle3", "stablediffusion", "leonardo", "gemini", "grok"];
+        const videoPlatforms = ["runway", "pika", "luma", "grok-video"];
 
-    let targetPlatforms = [];
-    if (platform && platform !== "all") {
-      if (platformsData[platform]) targetPlatforms = [platform];
-    } else {
-      targetPlatforms = type === "video" ? videoPlatforms : imagePlatforms;
+        let targetPlatforms = [];
+        if (platform && platform !== "all") {
+            if (platformsData[platform]) targetPlatforms = [platform];
+        } else {
+            targetPlatforms = type === "video" ? videoPlatforms : imagePlatforms;
+        }
+
+        const results = targetPlatforms.map((p) => ({
+            id: p,
+            name: platformsData[p].name,
+            logo: platformsData[p].logo,
+            url: platformsData[p].url,
+            prompt: platformsData[p].prompt(
+                idea,
+                translatedStyle,
+                translatedLighting,
+                translatedComposition,
+                aspectRatio
+            ),
+        }));
+
+        res.json({ success: true, prompts: results });
+    } catch (error) {
+        console.error("Error generating prompt:", error);
+        res.status(500).json({ success: false, error: "Failed to generate prompt: " + error.message });
     }
-
-    const results = targetPlatforms.map((p) => ({
-      id: p,
-      name: platformsData[p].name,
-      logo: platformsData[p].logo,
-      url: platformsData[p].url,
-      prompt: platformsData[p].prompt(
-        idea,
-        translatedStyle,
-        translatedLighting,
-        translatedComposition,
-        aspectRatio
-      ),
-    }));
-
-    res.json({ success: true, prompts: results });
-  } catch (error) {
-    console.error("Error generating prompt:", error);
-    res.status(500).json({ success: false, error: "Failed to generate prompt: " + error.message });
-  }
 });
 
-// === تحسين الفكرة (النسخة السريعة مع Fallback) ===
+// === تحسين الفكرة (النسخة السريعة) ===
 app.post("/api/enhance-idea", async (req, res) => {
   try {
     const { idea } = req.body;
@@ -184,19 +122,42 @@ app.post("/api/enhance-idea", async (req, res) => {
         return res.json({ success: true, enhancedIdea, note: "Used local fallback" });
     }
 
-    // محاولة الاتصال بـ Hugging Face مع شبكة الأمان
-    try {
-      const enhancedIdea = await queryHuggingFace(idea, 2); 
-      return res.json({ success: true, enhancedIdea });
-    } catch (hfError) {
-      console.warn("Hugging Face API failed, falling back to local:", hfError.message);
-      const enhancedIdea = localEnhancement(idea);
-      return res.json({ success: true, enhancedIdea, note: "Used local enhancement after API failure" });
+    const response = await fetch(HF_API_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${HF_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        // استخدام Flan T5-Large
+        inputs: `Enhance this idea into a detailed description:\n"${idea}"\nEnhanced version:`,
+        parameters: { max_new_tokens: 100, temperature: 0.7 },
+      }),
+    });
+
+    const text = await response.text(); 
+    
+    if (!response.ok) {
+        throw new Error(`API Error (${response.status}): ${text}`);
     }
 
+    const data = JSON.parse(text); 
+    
+    const enhancedIdea = data[0]?.generated_text?.trim() || idea;
+
+    if (enhancedIdea && enhancedIdea.length > idea.length + 10) { // تأكيد أن التحسين أكبر بـ 10 حروف على الأقل
+        return res.json({ success: true, enhancedIdea });
+    }
+
+    // إذا فشل النموذج في التحسين (أعاد نفس النص)، نستخدم شبكة الأمان
+    const fallbackIdea = localEnhancement(idea);
+    return res.json({ success: true, enhancedIdea: fallbackIdea, note: "Used local enhancement after weak AI response" });
+
   } catch (error) {
-    console.error("Enhancement error:", error);
-    res.status(500).json({ success: false, error: "Internal Server Error during enhancement." });
+    console.error("Error enhancing idea:", error);
+    // نضمن عدم فشل الـ API بعرض شبكة الأمان دائمًا
+    const fallbackIdea = localEnhancement(req.body.idea);
+    res.json({ success: true, enhancedIdea: fallbackIdea, note: "Used local enhancement after API error" });
   }
 });
 
