@@ -1,4 +1,4 @@
-// server.js (الإصدار الاحترافي v4.2 - إصلاح موديل Gemini)
+// server.js (الإصدار الاحترافي v4.3 - إصلاح موديل Gemini النهائي)
 const express = require('express');
 const cors = require('cors');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
@@ -100,8 +100,8 @@ app.post('/api/enhance-idea', async (req, res) => {
         const { idea } = req.body;
         if (!idea) return res.status(400).json({ error: 'Idea is required' });
 
-        // --- ✨ (هذا هو السطر الذي تم تغييره v4.2) ---
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" }); // (كان "gemini-1.5-flash")
+        // --- ✨ (هذا هو السطر الذي تم تغييره v4.3) ---
+        const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" }); // (كان "gemini-pro")
         // --- (نهاية التغيير) ---
 
         const systemPrompt = `أنت خبير في كتابة البرومبتات للذكاء الاصطناعي التوليدي. مهمتك هي أخذ فكرة بسيطة من المستخدم وتحويلها إلى وصف غني بالتفاصيل، إبداعي، وسينمائي. لا تضف أي مقدمات أو خواتيم. فقط أعد الوصف المحسّن مباشرة. مثال: المستخدم: قطة ترتدي قبعة. أنت: قطة فارسية رمادية جميلة ترتدي قبعة مخملية حمراء صغيرة، تجلس بفخر على كرسي ملكي قديم.`;
