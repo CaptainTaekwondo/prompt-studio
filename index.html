@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>✨️ Prompt AI Pro ✨️</title>
-    
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-
     <link rel="stylesheet" href="style.css">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 <body>
@@ -80,15 +77,21 @@
                 <label data-i18n="labelPlatform"><i class="fas fa-share-alt"></i> Select Platform</label>
                 <select id="platform-select">
                     <option value="all" selected data-i18n="optAllPlatforms">All Platforms</option>
+                    
                     <optgroup label="🖼️ Image Platforms">
                         <option value="midjourney">MidJourney</option>
                         <option value="dalle3">DALL·E 3</option>
                         <option value="stablediffusion">Stable Diffusion</option>
                         <option value="leonardo">Leonardo.ai</option>
+                        <option value="gemini">Google Gemini</option>
+                        <option value="grok">Grok AI</option>
                     </optgroup>
+                    
                     <optgroup label="🎬 Video Platforms">
                         <option value="runway">Runway</option>
                         <option value="pika">Pika</option>
+                        <option value="luma">Luma Dream Machine</option>
+                        <option value="grok-video">Grok Video</option>
                     </optgroup>
                 </select>
             </div>
@@ -98,7 +101,7 @@
             <button id="generate-button" class="main-button">
                 <i class="fas fa-rocket"></i> 
                 <span data-i18n="btnGenerate">Generate Professional Prompts</span>
-                <div class="button-loader" id="generate-loader"></div>
+                <div class="button-loader" id="generate-loader"></div> 
             </button>
             <button id="enhance-button" class="main-button">
                 <i class="fas fa-magic"></i> 
